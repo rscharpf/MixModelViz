@@ -1,8 +1,8 @@
 Package: MixModelViz
-Title: What the Package Does (one line, title case)
+Title: Plot mixture models with applications to copy number / batch effects 
 Version: 0.0.1
 Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: Plot mixture models with applications to copy number / batch effects 
 Depends: R (>= 3.4.0)
 License: What license is it under?
 Encoding: UTF-8
