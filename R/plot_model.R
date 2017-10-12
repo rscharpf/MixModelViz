@@ -1,5 +1,5 @@
-plot_batch <- function(best.model, tiles.df, use.copy_number=TRUE, plot.title=NULL, plot.subtitle=NULL) {
-  
+plot_batch <- function(best.model, tiles.df, use.copy_number=TRUE) {
+
   if(missing(tiles.df)) {
     obs.data <- oned(best.model)
     obs.batches <- batch(best.model)
@@ -111,8 +111,6 @@ plot_batch <- function(best.model, tiles.df, use.copy_number=TRUE, plot.title=NU
            color = guide_legend(title="Component", override.aes = list(linetype=1)),
            alpha = guide_legend(title="Component")) +
     scale_y_sqrt() +
-    facet_wrap("batch", scales="free_y", ncol=round(sqrt(n_facets)), labeller=labeller(batch=batch_labels)) + 
-    legend_position + 
-    labs(title=plot.title, subtitle=plot.subtitle)
-
+    facet_wrap("batch", scales="free_y", ncol=round(sqrt(n_facets)), labeller=labeller(batch=batch_labels)) +
+    legend_position
 }
