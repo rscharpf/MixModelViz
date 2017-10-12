@@ -116,30 +116,3 @@ plot_batch <- function(best.model, tiles.df, use.copy_number=TRUE, plot.title=NU
     labs(title=plot.title, subtitle=plot.subtitle)
 
 }
-
-get_model_str <- function(x) {
-  switch(
-    class(x),
-    SingleBatchModel="SB",
-    SingleBatchPooled="SBP",
-    MultiBatchModel="MB",
-    MultiBatchPooled="MBP",
-    {
-      stop("Model class could not be converted to Copy Number model\n")
-    })
-}
-
-for(i in 1:263) {
-  models.list <- readRDS(sprintf("data/CNPBayes/updated_results/cnp_model_%03d.rds", i))
-  tiles.df <- readRDS(sprintf("data/CNPBayes/updated_results/tiles_%03d.rds", i))
-  
-  gg.1 <- plot_batch(models.list[[1]], tiles.df,
-                     plot.title=sprintf("Region CNP_%03d, %s%d", 
-                                        i, 
-                                        get_model_str(models.list[[1]]),
-                                        k(models.list[[1]])))
-  ggsave(filename=sprintf("figures/CNPBayes/CNP_%03d_1.pdf", i), plot=gg.1, width=9.5, height=7)
-
-  gg.2 <- plot_batch(models.list[[2]], tiles.df, plot.title=sprintf("Region CNP_%03d, %s%d", i, get_model_str(models.list[[2]]), k(models.list[[2]])))
-  ggsave(filename=sprintf("figures/CNPBayes/CNP_%03d_2.pdf", i), plot=gg.2, width=9.5, height=7)
-}
