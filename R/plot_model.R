@@ -31,7 +31,7 @@ plot_batch <- function(best.model, tiles.df, use.copy_number=TRUE) {
 
   lrr.df <- data.frame(
     lrr.val=obs.data,
-    model.component=obs.component,
+    model.component=factor(obs.component, seq(k(best.model))),
     cn.component=cn.mapping[obs.component],
     batch=obs.batches
   )
