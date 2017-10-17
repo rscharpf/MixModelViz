@@ -1,6 +1,9 @@
-# Todo - remove or infer filtered outliers discovered in `upsample.CopyNumberDataFrame`
+#' @include help.R
+NULL
 
-library(CNPBayes)
+
+## Todo - remove or infer filtered outliers discovered in `upsample.CopyNumberDataFrame`
+
 
 # Proposed function for creating a data.frame from a MixtureModel object for plotting by `plot_model`
 create.CopyNumberDataFrame <- function(model.obj) {

@@ -1,6 +1,5 @@
 #  TODO: add force_singlebatch to collapse densities for multibatch/pooled models
 
-library(ggplot2)
 
 #' Plotting function for CopyNumberDataFrames
 #'
