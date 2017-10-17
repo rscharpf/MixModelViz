@@ -1,3 +1,4 @@
+#' @export
 plot_batch <- function(best.model, tiles.df, use.copy_number=TRUE, plot.title=NULL, plot.subtitle=NULL) {
   
   if(missing(tiles.df)) {
