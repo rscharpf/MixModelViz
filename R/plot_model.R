@@ -1,5 +1,22 @@
 #  TODO: add force_singlebatch to collapse densities for multibatch/pooled models
 
+##
+## DM:  - Too many arguments to pass.
+##      - plot_model is doing too much work
+##
+## Suggest the following pseudocode as a template, where the function summarize
+## returns all the data that is needed for plotting ( a list of tibbles )
+##
+## sums <- summarize( model )  ## a list of tibbles: (observed and predicted)
+## plotModel( sums )
+##
+## The only other argument (optional) would be a list of parameters for the
+## plotting (fill_aes, etc).  i.e.,
+##
+## params <- graphicalParams() ## returns list with defaults
+## plotModel( sums, params )
+##
+##
 
 #' Plotting function for CopyNumberDataFrames
 #'
