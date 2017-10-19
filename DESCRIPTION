@@ -10,7 +10,12 @@ LazyData: true
 Imports: ggplot2, CNPBayes
 Collate: 
     'help.R'
+    'AllGenerics.R'
+    'AllClasses.R'
     'CopyNumberDataFrame.R'
+    'methods-CopyNumberMixtureSummary.R'
+    'methods-MixtureModel.R'
+    'methods-MixtureSummary.R'
     'plot_model.R'
 Suggests: testthat
 RoxygenNote: 6.0.1

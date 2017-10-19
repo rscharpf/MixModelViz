@@ -58,7 +58,7 @@
 #' @return An object of class `ggplot`
 #' @export
 #'
-plot_model <- function(obs.df, thetas, sigmas, copynumber_mapping,
+plot_model <- function(summ, copynumber_mapping,
                        fill_aes="copynumber",
                        palette=c("1"="#56B4E9", "2"="#E69F00", "3"="#009E73",
                                  "4"="#F0E442", "5"="#0072B2"),
@@ -70,54 +70,54 @@ plot_model <- function(obs.df, thetas, sigmas, copynumber_mapping,
   #  determine the number of batches and components (`nBatches`, `nComponents`),
   #  establish the default 1:k `copynumber_mapping` if not provided, and
   #  build `bc.tab` - a Batch x Component contingency table
-  thetas <- unname(thetas)
-  multibatch <- is.matrix(thetas)
-  if(!multibatch) {  # SingleBatch or SingleBatchPooled
-    thetas <- matrix(thetas, nrow=1)
-  }
-  stopifnot(xor(multibatch, nrow(thetas) == 1))
-
-  nComponents <- ncol(thetas)
-  if(missing(copynumber_mapping)) copynumber_mapping <- seq(nComponents)
-  nBatches <- nrow(thetas)
-
-  sigmas <- unname(sigmas)
-  if(!is.matrix(sigmas)) { # SingleBatch, SingleBatchPooled, or MultiBatchPooled
-    sigmas <- matrix(sigmas, nrow=nrow(thetas))
-    if(ncol(sigmas) == 1 & nComponents > 1) {  # SingleBatchPooled or MultiBatchPooled
-      sigmas <- matrix(replicate(nComponents, c(sigmas)), ncol=nComponents)
-    }
-  }
-  stopifnot(identical(dim(thetas), dim(sigmas)))
-
-  if(multibatch) {
-    bc.tab <- as.matrix(table(obs.df$batch, obs.df$component))
-
-    obs.df <- rbind(obs.df, transform(obs.df, batch="marginal"))
-    obs.df$batch <- factor(obs.df$batch, levels=c("marginal", seq(nBatches)), ordered=TRUE)
-  } else {
-    bc.tab <- matrix(table(obs.df$component), nrow=1)
-  }
-
-
-  # Generate points for density plots
-  nBins <- ceiling(sqrt(nrow(obs.df)))
-  binSize <- diff(range(obs.df$x.val))/nBins  # used to scale density to histogram
-
-  predicted.df <- Reduce(rbind, lapply(seq(nBatches), function(b) {
-    Reduce(rbind, lapply(seq(nComponents), function(k) {
-      transform(
-        data.frame(
-          theta=thetas[b,k],
-          sigma=sigmas[b,k],
-          batch=factor(b, levels(obs.df$batch), ordered=TRUE),
-          component=factor(k, levels(obs.df$component), ordered=TRUE),
-          copynumber=factor(copynumber_mapping[k], levels(obs.df$copynumber), ordered=TRUE),
-          x=seq(min(obs.df$x.val), max(obs.df$x.val), length=1000)),
-        y=dnorm(x, theta, sigma)*binSize*bc.tab[b,k]
-      )
-    }))
-  }))
+  # thetas <- unname(thetas)
+  # multibatch <- is.matrix(thetas)
+  # if(!multibatch) {  # SingleBatch or SingleBatchPooled
+  #   thetas <- matrix(thetas, nrow=1)
+  # }
+  # stopifnot(xor(multibatch, nrow(thetas) == 1))
+  #
+  # nComponents <- ncol(thetas)
+  # if(missing(copynumber_mapping)) copynumber_mapping <- seq(nComponents)
+  # nBatches <- nrow(thetas)
+  #
+  # sigmas <- unname(sigmas)
+  # if(!is.matrix(sigmas)) { # SingleBatch, SingleBatchPooled, or MultiBatchPooled
+  #   sigmas <- matrix(sigmas, nrow=nrow(thetas))
+  #   if(ncol(sigmas) == 1 & nComponents > 1) {  # SingleBatchPooled or MultiBatchPooled
+  #     sigmas <- matrix(replicate(nComponents, c(sigmas)), ncol=nComponents)
+  #   }
+  # }
+  # stopifnot(identical(dim(thetas), dim(sigmas)))
+  #
+  # if(multibatch) {
+  #   bc.tab <- as.matrix(table(obs.df$batch, obs.df$component))
+  #
+  #   obs.df <- rbind(obs.df, transform(obs.df, batch="marginal"))
+  #   obs.df$batch <- factor(obs.df$batch, levels=c("marginal", seq(nBatches)), ordered=TRUE)
+  # } else {
+  #   bc.tab <- matrix(table(obs.df$component), nrow=1)
+  # }
+  #
+  #
+  # # Generate points for density plots
+  # nBins <- ceiling(sqrt(nrow(obs.df)))
+  # binSize <- diff(range(obs.df$x.val))/nBins  # used to scale density to histogram
+  #
+  # predicted.df <- Reduce(rbind, lapply(seq(nBatches), function(b) {
+  #   Reduce(rbind, lapply(seq(nComponents), function(k) {
+  #     transform(
+  #       data.frame(
+  #         theta=thetas[b,k],
+  #         sigma=sigmas[b,k],
+  #         batch=factor(b, levels(obs.df$batch), ordered=TRUE),
+  #         component=factor(k, levels(obs.df$component), ordered=TRUE),
+  #         copynumber=factor(copynumber_mapping[k], levels(obs.df$copynumber), ordered=TRUE),
+  #         x=seq(min(obs.df$x.val), max(obs.df$x.val), length=1000)),
+  #       y=dnorm(x, theta, sigma)*binSize*bc.tab[b,k]
+  #     )
+  #   }))
+  # }))
 
 
   if(is.list(palette)) {
@@ -125,12 +125,12 @@ plot_model <- function(obs.df, thetas, sigmas, copynumber_mapping,
   } else {
     palette <- list(color=palette, fill=palette)
   }
-
-  ggp <- ggplot(obs.df, aes_(color=as.name(fill_aes), fill=as.name(fill_aes))) +
-    geom_histogram(aes(x.val, ..count..), alpha=fixed_aes$hist$alpha,
+#  assign("fill_aes", NULL)
+  ggp <- ggplot(mapping=aes_(color=as.name(fill_aes), fill=as.name(fill_aes))) +
+    geom_histogram(data=getObserved(summ), aes(x.val, ..count..), alpha=fixed_aes$hist$alpha,
                    linetype=fixed_aes$hist$linetype, size=fixed_aes$hist$size,
-                   bins=nBins, position=position_stack()) + #reverse=TRUE)) +
-    geom_line(data=predicted.df, aes(x,y, group=component),
+                   bins=nBins(summ), position=position_stack()) + #reverse=TRUE)) +
+    geom_line(data=getTheoretical(summ), aes(x,y, group=component),
               alpha=fixed_aes$line$alpha, linetype=fixed_aes$line$linetype,
               size=fixed_aes$line$size) +
     scale_color_manual(name="Component", values=palette$color) +
@@ -146,14 +146,15 @@ plot_model <- function(obs.df, thetas, sigmas, copynumber_mapping,
   }
 
 
+  nBatches <- max(getTheoretical(summ)$batch)
   # Faceting and legend positioning
-  if (multibatch) {
+  if (nBatches > 1) {
     batch_labels <- paste("batch", seq(nBatches))
-    if("batch.var" %in% names(obs.df)) {
-      batch_names <- unique(obs.df[,c("batch", "batch.var")])
-      batch_labels <- paste(batch_labels, ":",
-                            batch_names$batch.var[order(batch_names$batch)])
-    }
+    # if("batch.var" %in% names(obs.df)) {
+    #   batch_names <- unique(obs.df[,c("batch", "batch.var")])
+    #   batch_labels <- paste(batch_labels, ":",
+    #                         batch_names$batch.var[order(batch_names$batch)])
+    # }
     names(batch_labels) <- seq(nBatches)
     batch_labels["marginal"] = "marginal"
 
@@ -161,7 +162,8 @@ plot_model <- function(obs.df, thetas, sigmas, copynumber_mapping,
                             ncol=round(sqrt(nBatches + 1)),
                             labeller=labeller(batch=batch_labels))
 
-    if(sqrt(nBatches + 1) %% 1 != 0) {
+    n_facets <- nBatches + 1
+    if((n_facets / round(sqrt(n_facets))) %% 1 != 0) {
       ggp <- ggp + theme(legend.position = c(1, 0),
                          legend.justification = c(1, 0),
                          legend.box="horizontal")
