@@ -55,8 +55,8 @@ setGeneric("nBins", function(object) standardGeneric("nBins"))
 
 #' Create a plottable summary of the observed mixture model.
 #'
-#' This function retrieves the observed values, predicted component, and batch identifiers from a `TempMix` object. Suitable for plotting counts with a histogram.
-#' @param model A `TempMix` object
+#' This function retrieves the observed values, predicted component, and batch identifiers from a `MixtureModel` object. Suitable for plotting counts with a histogram.
+#' @param model A `MixtureModel` object
 #' @return A data.frame containing the varibles described by `ObservedNames(model)` for each observed object in the model.
 #' @export
 #' @docType methods
@@ -65,8 +65,8 @@ setGeneric("summarizeObserved", function(model) standardGeneric("summarizeObserv
 
 #' Create a plottable summary of the theoretical mixture model.
 #'
-#' This function retrieves the theoretical distribution from a `TempMix` object and generates density points over the range of x values given in the model's observed data. Suitable for plotting as a line. Y values have been scaled to fit the histogram over the range of the observed data when split using `nBins(MixtureSummary.obj)`.
-#' @param model A `TempMix` object
+#' This function retrieves the theoretical distribution from a `MixtureModel` object and generates density points over the range of x values given in the model's observed data. Suitable for plotting as a line. Y values have been scaled to fit the histogram over the range of the observed data when split using `nBins(MixtureSummary.obj)`.
+#' @param model A `MixtureModel` object
 #' @return A data.frame containing the varibles described by `TheoreticalNames(model)` for each of the observed distributions.
 #' @export
 #' @docType methods
@@ -76,7 +76,7 @@ setGeneric("summarizeTheoretical", function(model) standardGeneric("summarizeThe
 #' Summarize a MixtureModel into a set of data.frames that can be plotted.
 #'
 #' This function returns a lsit of two data.frames (observed and predicted) that can be plotted over eachother. The observed values can be plotted as a histogram when split by `nBins(MixtureSumamry.obj)`. The theoretical distribution has been scaled to be plotted over the histogram when plotted as described.
-#' @param model a TempMix-derived object
+#' @param model a MixtureModel-derived object
 #' @return A MixtureSummary object.
 #' @export
 #' @rdname summarize-method

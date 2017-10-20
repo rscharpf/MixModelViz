@@ -34,9 +34,9 @@
 #'      The named list should contain named vectors "hist" and "line".
 #' @return An object of class `ggplot`
 #' @examples
-#' summ <- summarize(as(sbm.obj, "TempSBM"))
+#' summ <- summarize(sbm.obj)
 #' plot_model(summ, fill_aes="component")
-#' summ.cn <- summarize(as(mbcn.obj, "TempMBCN"))
+#' summ.cn <- summarize(mbcn.obj)
 #' plot_model(summ, fill_aes="copynumber")
 #' @export
 #'

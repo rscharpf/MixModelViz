@@ -7,33 +7,33 @@ NULL
 NULL
 
 
-setMethod("getThetaMatrix", "TempMix", function(model) {
+setMethod("getThetaMatrix", "MixtureModel", function(model) {
   unname(theta(model))
 })
 
-setMethod("getThetaMatrix", "TempSBM", function(model) {
+setMethod("getThetaMatrix", "SingleBatchModel", function(model) {
   matrix(callNextMethod(model), ncol=k(model))
 })
 
 
-setMethod("getSigmaMatrix", "TempMix", function(model) {
+setMethod("getSigmaMatrix", "MixtureModel", function(model) {
   unname(sigma(model))
 })
 
-setMethod("getSigmaMatrix", "TempSBM", function(model) {
+setMethod("getSigmaMatrix", "SingleBatchModel", function(model) {
   matrix(rep_len(callNextMethod(model), k(model)), nrow=1)
 })
 
-setMethod("getSigmaMatrix", "TempMBP", function(model) {
+setMethod("getSigmaMatrix", "MultiBatchPooled", function(model) {
   matrix(rep(callNextMethod(model), k(model)), ncol=k(model))
 })
 
-setMethod("getSigmaMatrix", "TempMBCNP", function(model) {
+setMethod("getSigmaMatrix", "MultiBatchCopyNumberPooled", function(model) {
   matrix(rep(callNextMethod(model), k(model)), ncol=k(model))
 })
 
 
-setMethod("summarizeObserved", "TempMix", function(model) {
+setMethod("summarizeObserved", "MixtureModel", function(model) {
   data.frame(
     x.val=oned(model),
     batch=factor(batch(model), seq(max(batch(model))), ordered=TRUE),
@@ -41,13 +41,13 @@ setMethod("summarizeObserved", "TempMix", function(model) {
   )
 })
 
-setMethod("summarizeObserved", "TempSBCN", function(model) {
+setMethod("summarizeObserved", "SingleBatchCopyNumber", function(model) {
   result <- callNextMethod(model)
   result$copynumber <- factor(copyNumber(model), levels=seq(max(mapping(model))), ordered=TRUE)
   result
 })
 
-setMethod("summarizeObserved", "TempMBM", function(model) {
+setMethod("summarizeObserved", "MultiBatchModel", function(model) {
   result <- callNextMethod(model)
   nBatch <- length(levels(result$batch))
   result <- rbind(result, transform(result, batch="marginal"))
@@ -55,19 +55,19 @@ setMethod("summarizeObserved", "TempMBM", function(model) {
   result
 })
 
-setMethod("summarizeObserved", "TempMBCN", function(model) {
+setMethod("summarizeObserved", "MultiBatchCopyNumber", function(model) {
   result <- callNextMethod(model)
   result$copynumber <- factor(copyNumber(model), levels=seq(max(mapping(model))), ordered=TRUE)
   result
 })
 
-setMethod("summarizeObserved", "TempMBCNP", function(model) {
+setMethod("summarizeObserved", "MultiBatchCopyNumberPooled", function(model) {
   result <- callNextMethod(model)
   result$copynumber <- factor(copyNumber(model), levels=seq(max(mapping(model))), ordered=TRUE)
   result
 })
 
-setMethod("summarizeTheoretical", "TempMix", function(model) {
+setMethod("summarizeTheoretical", "MixtureModel", function(model) {
   theta.mat <- getThetaMatrix(model)
   sigma.mat <- getSigmaMatrix(model)
   stopifnot(identical(dim(theta.mat), dim(sigma.mat)))
@@ -93,47 +93,47 @@ setMethod("summarizeTheoretical", "TempMix", function(model) {
   }))
 })
 
-setMethod("summarizeTheoretical", "TempSBCN", function(model) {
+setMethod("summarizeTheoretical", "SingleBatchCopyNumber", function(model) {
   result <- callNextMethod(model)
   result$copynumber <- factor(mapping(model), seq(max(mapping(model))))[result$component]
   result
 })
 
-setMethod("summarizeTheoretical", "TempMBCN", function(model) {
+setMethod("summarizeTheoretical", "MultiBatchCopyNumber", function(model) {
   result <- callNextMethod(model)
   result$copynumber <- factor(mapping(model), seq(max(mapping(model))))[result$component]
   result
 })
 
-setMethod("summarizeTheoretical", "TempMBCNP", function(model) {
+setMethod("summarizeTheoretical", "MultiBatchCopyNumberPooled", function(model) {
   result <- callNextMethod(model)
   result$copynumber <- factor(mapping(model), seq(max(mapping(model))))[result$component]
   result
 })
 
 
-setMethod("summarize", "TempMix", function(model) {
+setMethod("summarize", "MixtureModel", function(model) {
   new("MixtureSummary",
       observed=summarizeObserved(model),
       theoretical=summarizeTheoretical(model),
       nBins=as.integer(ceiling(sqrt(length(oned(model))))))
 })
 
-setMethod("summarize", "TempSBCN", function(model) {
+setMethod("summarize", "SingleBatchCopyNumber", function(model) {
   new("CopyNumberMixtureSummary",
       observed=summarizeObserved(model),
       theoretical=summarizeTheoretical(model),
       nBins=as.integer(ceiling(sqrt(length(oned(model))))))
 })
 
-setMethod("summarize", "TempMBCN", function(model) {
+setMethod("summarize", "MultiBatchCopyNumber", function(model) {
   new("CopyNumberMixtureSummary",
       observed=summarizeObserved(model),
       theoretical=summarizeTheoretical(model),
       nBins=as.integer(ceiling(sqrt(length(oned(model))))))
 })
 
-setMethod("summarize", "TempMBCNP", function(model) {
+setMethod("summarize", "MultiBatchCopyNumberPooled", function(model) {
   new("CopyNumberMixtureSummary",
       observed=summarizeObserved(model),
       theoretical=summarizeTheoretical(model),

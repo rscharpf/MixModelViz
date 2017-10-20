@@ -1,48 +1,6 @@
 #' @include AllGenerics.R
 NULL
 
-#' A temporary `MixtureModel` superclass
-#'
-#' A temporary, abstract superclass for `MixtureModel` objects
-setClass("TempMix", contains="MixtureModel")
-
-#' A temporary `SingleBatchModel` superclass
-#'
-#' A temporary, abstract class for `SingleBatchModel` objects, may be coerced as follows: `as(singlebatchmodel.obj, "TempSBM")`
-setClass("TempSBM", contains=c("SingleBatchModel", "TempMix"))
-
-#' A temporary `SingleBatchPooled` superclass
-#'
-#' A temporary, abstract class for `SingleBatchPooled` objects
-setClass("TempSBP", contains=c("SingleBatchPooled", "TempSBM"))
-
-#' A temporary `SingleBatchCopyNumber` superclass
-#'
-#' A temporary, abstract class for `SingleBatchCopyNumber` objects
-setClass("TempSBCN", contains=c("SingleBatchCopyNumber", "TempSBM"))
-
-#' A temporary `MultiBatchModel` superclass
-#'
-#' A temporary, abstract class for `MultiBatchModel` objects
-setClass("TempMBM", contains=c("MultiBatchModel", "TempMix"))
-
-#' A temporary `MultiBatchPooled` superclass
-#'
-#' A temporary, abstract class for `MultiBatchPooled` objects
-setClass("TempMBP", contains=c("MultiBatchPooled", "TempMBM"))
-
-#' A temporary `MultiBatchCopyNumber` superclass
-#'
-#' A temporary, abstract class for `MultiBatchCopyNumber` objects
-setClass("TempMBCN", contains=c("MultiBatchCopyNumber", "TempMBM"))
-
-#' A temporary `MultiBatchCopyNumberPooled` superclass
-#'
-#' A temporary, abstract class for `MultiBatchCopyNumberPooled` objects
-setClass("TempMBCNP", contains=c("MultiBatchCopyNumberPooled", "TempMBM"))
-
-
-
 #' An object summarizing the observed mixture model and theoretical models as plottable data.frames
 #'
 #' @slot observed data.frame of observed values, with batch and component metadata. Suitable for histogram plotting. Must have the following columns: "batch" (bactor), "component" (factor), "x.val" (numeric).

@@ -4,13 +4,24 @@
 \alias{plot_model}
 \title{Plotting function for CopyNumberDataFrames}
 \usage{
-plot_model(obs.df, thetas, sigmas, copynumber_mapping,
-  fill_aes = "copynumber", palette = c(`1` = "#56B4E9", `2` = "#E69F00", `3`
-  = "#009E73", `4` = "#F0E442", `5` = "#0072B2"), fixed_aes = list(hist =
-  list(alpha = 0.5, linetype = 0, size = 0), line = list(alpha = 1, linetype =
-  1, size = 1)))
+plot_model(summ, copynumber_mapping, fill_aes = "copynumber",
+  palette = c(`1` = "#56B4E9", `2` = "#E69F00", `3` = "#009E73", `4` =
+  "#F0E442", `5` = "#0072B2"), fixed_aes = list(hist = list(alpha = 0.5,
+  linetype = 0, size = 0), line = list(alpha = 1, linetype = 1, size = 1)))
 }
 \arguments{
+\item{copynumber_mapping}{An integer-vector of length `k` that indicates the
+predicted copy number for theoretical components `1:k`}
+
+\item{fill_aes}{should be "copynumber" or "component", but can be any value
+that can be evaluated by `aes_(fill=as.name(fill_aes))` where `data=obs.df`}
+
+\item{palette}{A vector of colors. To specify separate vectors for fill and}
+
+\item{fixed_aes}{a list of alpha, linetype, and size values that will be
+passed on to geom_hist and geom_line as fixed aesthetic parameters.
+The named list should contain named vectors "hist" and "line".}
+
 \item{obs.df}{a data.frame of an observed mixture model for copy number polymorphisms
 `x.val` - a continuous value, such as LRR or a principal component
 `batch` - integer batch identifier, used for facetting
@@ -36,18 +47,6 @@ componets or a multi-batch model with pooled variances and `s` batches.
 This ambiguity is resovled by a correctly-dimensioned `theta` matrix.
 A matrix of dimenions `c(k, b)` indicates a multi-batch (non-pooled) model
 with `k` predicted components (even if k == 1) and `b` batches.}
-
-\item{copynumber_mapping}{An integer-vector of length `k` that indicates the
-predicted copy number for theoretical components `1:k`}
-
-\item{fill_aes}{should be "copynumber" or "component", but can be any value
-that can be evaluated by `aes_(fill=as.name(fill_aes))` where `data=obs.df`}
-
-\item{palette}{A vector of colors. To specify separate vectors for fill and}
-
-\item{fixed_aes}{a list of alpha, linetype, and size values that will be
-passed on to geom_hist and geom_line as fixed aesthetic parameters.
-The named list should contain named vectors "hist" and "line".}
 }
 \value{
 An object of class `ggplot`
