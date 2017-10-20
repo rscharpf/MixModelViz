@@ -1,38 +1,103 @@
 #' @include help.R
 NULL
 
+#' Observed variables
+#'
+#' This function shows that column names that must be present in an observed model summary. These must be present in the character vector `names(getObserved(object))`. Checked by `validObject(object)`.
+#' @param object see \code{showMethods(ObservedNames)}
+#' @return A character vector.
 #' @export
+#' @docType methods
+#' @rdname ObservedNames-method
 setGeneric("ObservedNames", function(object) standardGeneric("ObservedNames"))
 
+
+#' Theoretical variables
+#'
+#' This function shows that column names that must be present in a theoretical model summary. These must be present in the character vector `names(getTheoretical(object))`. Checked by `validObject(object)`.
+#' @param object see \code{showMethods(TheoreticalNames)}
+#' @return A character vector.
 #' @export
+#' @docType methods
+#' @rdname TheoreticalNames-method
 setGeneric("TheoreticalNames", function(object) standardGeneric("TheoreticalNames"))
 
+
+#' Observed model summary
+#'
+#' This function retrieves a summary of the an observed model.
+#' @param object see \code{showMethods(getObserved)}
+#' @return A data.frame. Column names must include those returned by `ObservedNames(object)`.
 #' @export
+#' @docType methods
+#' @rdname getObserved-method
 setGeneric("getObserved", function(object) standardGeneric("getObserved"))
 
+#' Observed model summary
+#'
+#' This function retrieves a summary of the a theoretical model.
+#' @param object see \code{showMethods(getTheoretical)}
+#' @return A data.frame. Column names must include those returned by `TheoreticalNames(object)`.
 #' @export
+#' @docType methods
+#' @rdname getTheoretical-method
 setGeneric("getTheoretical", function(object) standardGeneric("getTheoretical"))
 
+#' Number of bins
+#'
+#' This function retrieves the number of bins suggested for plotting an observed model summary as a histogram over the range of it's x values.
+#' @param object see \code{showMethods(nBins)}
+#' @return integer
 #' @export
+#' @docType methods
+#' @rdname nBins-method
 setGeneric("nBins", function(object) standardGeneric("nBins"))
 
+#' Create a plottable summary of the observed mixture model.
+#'
+#' This function retrieves the observed values, predicted component, and batch identifiers from a `TempMix` object. Suitable for plotting counts with a histogram.
+#' @param model A `TempMix` object
+#' @return A data.frame containing the varibles described by `ObservedNames(model)` for each observed object in the model.
 #' @export
+#' @docType methods
+#' @rdname summarizeObserved-method
 setGeneric("summarizeObserved", function(model) standardGeneric("summarizeObserved"))
 
+#' Create a plottable summary of the theoretical mixture model.
+#'
+#' This function retrieves the theoretical distribution from a `TempMix` object and generates density points over the range of x values given in the model's observed data. Suitable for plotting as a line. Y values have been scaled to fit the histogram over the range of the observed data when split using `nBins(MixtureSummary.obj)`.
+#' @param model A `TempMix` object
+#' @return A data.frame containing the varibles described by `TheoreticalNames(model)` for each of the observed distributions.
 #' @export
+#' @docType methods
+#' @rdname summarizeTheoretical-method
 setGeneric("summarizeTheoretical", function(model) standardGeneric("summarizeTheoretical"))
 
-#' Summarize a MixtureModel into a set of data.frames that can be plotted
-#'  (observed and predicted)
+#' Summarize a MixtureModel into a set of data.frames that can be plotted.
 #'
-#' @param model a MixtureModel-derived object
-#' @return A MixtureSummary object of two data.frames (observed and predicted) that can be plotted
+#' This function returns a lsit of two data.frames (observed and predicted) that can be plotted over eachother. The observed values can be plotted as a histogram when split by `nBins(MixtureSumamry.obj)`. The theoretical distribution has been scaled to be plotted over the histogram when plotted as described.
+#' @param model a TempMix-derived object
+#' @return A MixtureSummary object.
 #' @export
 #' @rdname summarize-method
 setGeneric("summarize", function(model) standardGeneric("summarize"))
 
+#' Wrapper function for a `MixtureModel`'s theta accessor.
+#'
+#' This function retrieves the model's theta values as a matrix.
+#' @param object see \code{showMethods(k)}
+#' @return A "b X k" numeric matrix where b is the number batches and k is the number of predicted components.
 #' @export
+#' @docType methods
+#' @rdname getThetaMatrix-method
 setGeneric("getThetaMatrix", function(model) standardGeneric("getThetaMatrix"))
 
+#' Wrapper function for a `MixtureModel`'s sigma accessor.
+#'
+#' This function retrieves the model's sigma values as a matrix.
+#' @param object see \code{showMethods(k)}
+#' @return A "b X k" numeric matrix where b is the number batches and k is the number of predicted components.
 #' @export
+#' @docType methods
+#' @rdname getSigmaMatrix-method
 setGeneric("getSigmaMatrix", function(model) standardGeneric("getSigmaMatrix"))

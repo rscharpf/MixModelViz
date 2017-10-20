@@ -36,17 +36,36 @@ setMethod("getSigmaMatrix", "TempMBCNP", function(model) {
 setMethod("summarizeObserved", "TempMix", function(model) {
   data.frame(
     x.val=oned(model),
-    batch=batch(model),
+    batch=factor(batch(model), seq(max(batch(model))), ordered=TRUE),
     component=factor(map_z(model), seq(k(model)), ordered=TRUE)
   )
 })
 
-setMethod("summarizeObserved", "TempMixCN", function(model) {
+setMethod("summarizeObserved", "TempSBCN", function(model) {
   result <- callNextMethod(model)
   result$copynumber <- factor(copyNumber(model), levels=seq(max(mapping(model))), ordered=TRUE)
   result
 })
 
+setMethod("summarizeObserved", "TempMBM", function(model) {
+  result <- callNextMethod(model)
+  nBatch <- length(levels(result$batch))
+  result <- rbind(result, transform(result, batch="marginal"))
+  result$batch <- factor(result$batch, levels=c("marginal", seq(nBatch)), ordered=TRUE)
+  result
+})
+
+setMethod("summarizeObserved", "TempMBCN", function(model) {
+  result <- callNextMethod(model)
+  result$copynumber <- factor(copyNumber(model), levels=seq(max(mapping(model))), ordered=TRUE)
+  result
+})
+
+setMethod("summarizeObserved", "TempMBCNP", function(model) {
+  result <- callNextMethod(model)
+  result$copynumber <- factor(copyNumber(model), levels=seq(max(mapping(model))), ordered=TRUE)
+  result
+})
 
 setMethod("summarizeTheoretical", "TempMix", function(model) {
   theta.mat <- getThetaMatrix(model)
@@ -74,22 +93,25 @@ setMethod("summarizeTheoretical", "TempMix", function(model) {
   }))
 })
 
-setMethod("summarizeTheoretical", "TempMixCN", function(model) {
+setMethod("summarizeTheoretical", "TempSBCN", function(model) {
   result <- callNextMethod(model)
   result$copynumber <- factor(mapping(model), seq(max(mapping(model))))[result$component]
   result
 })
 
-setMethod("summarizeTheoretical", "TempMBM", function(model) {
+setMethod("summarizeTheoretical", "TempMBCN", function(model) {
   result <- callNextMethod(model)
-  result <- rbind(result, transform(result, batch="marginal"))
-  result$batch <- factor(result$batch, levels=c("marginal", seq(nBatches)), ordered=TRUE)
+  result$copynumber <- factor(mapping(model), seq(max(mapping(model))))[result$component]
+  result
+})
+
+setMethod("summarizeTheoretical", "TempMBCNP", function(model) {
+  result <- callNextMethod(model)
+  result$copynumber <- factor(mapping(model), seq(max(mapping(model))))[result$component]
   result
 })
 
 
-#' @rdname summarize-method
-#' @aliases summarize,MixtureModel-method
 setMethod("summarize", "TempMix", function(model) {
   new("MixtureSummary",
       observed=summarizeObserved(model),
@@ -97,7 +119,21 @@ setMethod("summarize", "TempMix", function(model) {
       nBins=as.integer(ceiling(sqrt(length(oned(model))))))
 })
 
-setMethod("summarize", "TempMixCN", function(model) {
+setMethod("summarize", "TempSBCN", function(model) {
+  new("CopyNumberMixtureSummary",
+      observed=summarizeObserved(model),
+      theoretical=summarizeTheoretical(model),
+      nBins=as.integer(ceiling(sqrt(length(oned(model))))))
+})
+
+setMethod("summarize", "TempMBCN", function(model) {
+  new("CopyNumberMixtureSummary",
+      observed=summarizeObserved(model),
+      theoretical=summarizeTheoretical(model),
+      nBins=as.integer(ceiling(sqrt(length(oned(model))))))
+})
+
+setMethod("summarize", "TempMBCNP", function(model) {
   new("CopyNumberMixtureSummary",
       observed=summarizeObserved(model),
       theoretical=summarizeTheoretical(model),

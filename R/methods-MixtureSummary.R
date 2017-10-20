@@ -5,7 +5,7 @@ setMethod("ObservedNames", "MixtureSummary",
           function(object) c("x.val", "batch", "component"))
 
 setMethod("TheoreticalNames", "MixtureSummary",
-          function(object) c("theta", "sigma", "batch", "component", "x", "y"))
+          function(object) c("batch", "component", "x", "y"))
 
 setMethod("getObserved", "MixtureSummary", function(object) object@observed)
 
