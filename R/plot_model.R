@@ -23,8 +23,6 @@
 #' Plots normal densities from theoretical mixture models over a histogram of observed data.
 #'
 #' @param summ a `MixtureSummary` object
-#' @param copynumber_mapping An integer-vector of length `k` that indicates the
-#'      predicted copy number for theoretical components `1:k`
 #' @param fill_aes should be "copynumber" or "component", but can be any value
 #'      that can be evaluated by `aes_(fill=as.name(fill_aes))` where `data=obs.df`
 #' @param palette A vector of colors. To specify separate vectors for fill and
@@ -34,14 +32,19 @@
 #'      The named list should contain named vectors "hist" and "line".
 #' @return An object of class `ggplot`
 #' @examples
-#' summ <- summarize(sbm.obj)
-#' plot_model(summ, fill_aes="component")
-#' summ.cn <- summarize(mbcn.obj)
-#' plot_model(summ, fill_aes="copynumber")
+#' model.1 <- MultiBatchModel2(
+#'      c(rnorm(60, -.4, .1), rnorm(120, -.05, .1), rnorm(60, .3, .1)),
+#'      batches=sample.int(2, 240, TRUE))
+#' model.1 <- posteriorSimulation()
+#' summ.1 <- summarize(model.1)
+#' plot_model(summ.1)
+#'
+#' data(MultiBatchPooledExample)
+#' summ.2 <- summarize(CopyNumberModel(MultiBatchPooledExample))
+#' plot_model(summ.2)
 #' @export
 #'
-plot_model <- function(summ, copynumber_mapping,
-                       fill_aes="copynumber",
+plot_model <- function(summ, fill_aes,
                        palette=c("1"="#56B4E9", "2"="#E69F00", "3"="#009E73",
                                  "4"="#F0E442", "5"="#0072B2"),
                        fixed_aes=list(hist=list(alpha=0.5, linetype=0,  size=0),
@@ -52,6 +55,13 @@ plot_model <- function(summ, copynumber_mapping,
     stopifnot(all(c("color", "fill") %in% names(palette)))
   } else {
     palette <- list(color=palette, fill=palette)
+  }
+  if(missing(fill_aes)) {
+    if(inherits(summ, "CopyNumberMixtureSummary")) {
+      fill_aes <- "copynumber"
+    } else {
+      fill_aes <- "component"
+    }
   }
 
   ggp <- ggplot(mapping=aes_(color=as.name(fill_aes), fill=as.name(fill_aes))) +
