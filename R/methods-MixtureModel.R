@@ -180,9 +180,23 @@ setMethod("summarize", c("SingleBatchCopyNumber", "tbl_df"), function(model, ds.
 })
 
 #' @rdname summarize-method
+#' @aliases summarize,SingleBatchCopyNumber-method
+setMethod("summarize", c("SingleBatchCopyNumber", "missing"), function(model, ds.tbl) {
+  result <- callNextMethod(model)
+  as(result, "CopyNumberMixtureSummary")
+})
+
+#' @rdname summarize-method
 #' @aliases summarize,MultiBatchCopyNumber-method
 setMethod("summarize", c("MultiBatchCopyNumber", "tbl_df"), function(model, ds.tbl) {
   result <- callNextMethod(model, ds.tbl)
+  as(result, "CopyNumberMixtureSummary")
+})
+
+#' @rdname summarize-method
+#' @aliases summarize,MultiBatchCopyNumber-method
+setMethod("summarize", c("MultiBatchCopyNumber", "missing"), function(model, ds.tbl) {
+  result <- callNextMethod(model)
   as(result, "CopyNumberMixtureSummary")
 })
 
@@ -193,3 +207,9 @@ setMethod("summarize", c("MultiBatchCopyNumberPooled", "tbl_df"), function(model
   as(result, "CopyNumberMixtureSummary")
 })
 
+#' @rdname summarize-method
+#' @aliases summarize,MultiBatchCopyNumberPooled-method
+setMethod("summarize", c("MultiBatchCopyNumberPooled", "missing"), function(model, ds.tbl) {
+  result <- callNextMethod(model)
+  as(result, "CopyNumberMixtureSummary")
+})

@@ -28,6 +28,15 @@ setMethod("getTheoretical", "MixtureSummary", function(object) object@theoretica
 #' @aliases nBins,MixtureSummary-method
 setMethod("nBins", "MixtureSummary", function(object) object@nBins)
 
+setMethod("show", "MixtureSummary", function(object) {
+  cat("An object of class '", class(object), "'\n")
+  cat("  Observed Model:\n")
+  show(head(getObserved(object)))
+  cat("  Theoretical Model:\n")
+  show(head(getTheoretical(object)))
+  cat("  nBins: ", object@nBins, "\n")
+})
+
 setValidity("MixtureSummary", function(object) {
   observed.names <- ObservedNames(object)
   theoretical.names <- TheoreticalNames(object)

@@ -3,22 +3,50 @@
 \docType{methods}
 \name{summarize}
 \alias{summarize}
-\alias{summarize,TempModel-method}
+\alias{summarize,MixtureModel,tbl_df-method}
 \alias{summarize,MixtureModel-method}
-\title{Summarize a MixtureModel into a set of data.frames that can be plotted
- (observed and predicted)}
+\alias{summarize,MixtureModel,missing-method}
+\alias{summarize,MixtureModel-method}
+\alias{summarize,SingleBatchCopyNumber,tbl_df-method}
+\alias{summarize,SingleBatchCopyNumber-method}
+\alias{summarize,SingleBatchCopyNumber,missing-method}
+\alias{summarize,SingleBatchCopyNumber-method}
+\alias{summarize,MultiBatchCopyNumber,tbl_df-method}
+\alias{summarize,MultiBatchCopyNumber-method}
+\alias{summarize,MultiBatchCopyNumber,missing-method}
+\alias{summarize,MultiBatchCopyNumber-method}
+\alias{summarize,MultiBatchCopyNumberPooled,tbl_df-method}
+\alias{summarize,MultiBatchCopyNumberPooled-method}
+\alias{summarize,MultiBatchCopyNumberPooled,missing-method}
+\alias{summarize,MultiBatchCopyNumberPooled-method}
+\title{Summarize a MixtureModel into a set of data.frames that can be plotted.}
 \usage{
-summarize(model)
+summarize(model, ds.tbl)
 
-\S4method{summarize}{TempModel}(model)
+\S4method{summarize}{MixtureModel,tbl_df}(model, ds.tbl)
+
+\S4method{summarize}{MixtureModel,missing}(model, ds.tbl)
+
+\S4method{summarize}{SingleBatchCopyNumber,tbl_df}(model, ds.tbl)
+
+\S4method{summarize}{SingleBatchCopyNumber,missing}(model, ds.tbl)
+
+\S4method{summarize}{MultiBatchCopyNumber,tbl_df}(model, ds.tbl)
+
+\S4method{summarize}{MultiBatchCopyNumber,missing}(model, ds.tbl)
+
+\S4method{summarize}{MultiBatchCopyNumberPooled,tbl_df}(model, ds.tbl)
+
+\S4method{summarize}{MultiBatchCopyNumberPooled,missing}(model, ds.tbl)
 }
 \arguments{
 \item{model}{a MixtureModel-derived object}
+
+\item{ds.tbl}{(optional) a tibble used to upsample observations in `object`.}
 }
 \value{
-A MixtureSummary object of two data.frames (observed and predicted) that can be plotted
+A MixtureSummary object.
 }
 \description{
-Summarize a MixtureModel into a set of data.frames that can be plotted
- (observed and predicted)
+This function returns a lsit of two data.frames (observed and predicted) that can be plotted over eachother. The observed values can be plotted as a histogram when split by `nBins(MixtureSumamry.obj)`. The theoretical distribution has been scaled to be plotted over the histogram when plotted as described.
 }

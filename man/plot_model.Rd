@@ -2,16 +2,15 @@
 % Please edit documentation in R/plot_model.R
 \name{plot_model}
 \alias{plot_model}
-\title{Plotting function for CopyNumberDataFrames}
+\title{Plotting function for `MixtureSummary` objects}
 \usage{
-plot_model(summ, copynumber_mapping, fill_aes = "copynumber",
-  palette = c(`1` = "#56B4E9", `2` = "#E69F00", `3` = "#009E73", `4` =
-  "#F0E442", `5` = "#0072B2"), fixed_aes = list(hist = list(alpha = 0.5,
-  linetype = 0, size = 0), line = list(alpha = 1, linetype = 1, size = 1)))
+plot_model(summ, fill_aes, palette = c(`1` = "#56B4E9", `2` = "#E69F00", `3` =
+  "#009E73", `4` = "#F0E442", `5` = "#0072B2"), fixed_aes = list(hist =
+  list(alpha = 0.5, linetype = 0, size = 0), line = list(alpha = 1, linetype =
+  1, size = 1)))
 }
 \arguments{
-\item{copynumber_mapping}{An integer-vector of length `k` that indicates the
-predicted copy number for theoretical components `1:k`}
+\item{summ}{a `MixtureSummary` object}
 
 \item{fill_aes}{should be "copynumber" or "component", but can be any value
 that can be evaluated by `aes_(fill=as.name(fill_aes))` where `data=obs.df`}
@@ -21,37 +20,19 @@ that can be evaluated by `aes_(fill=as.name(fill_aes))` where `data=obs.df`}
 \item{fixed_aes}{a list of alpha, linetype, and size values that will be
 passed on to geom_hist and geom_line as fixed aesthetic parameters.
 The named list should contain named vectors "hist" and "line".}
-
-\item{obs.df}{a data.frame of an observed mixture model for copy number polymorphisms
-`x.val` - a continuous value, such as LRR or a principal component
-`batch` - integer batch identifier, used for facetting
-`component` - integer value for a latent variable assignment corresponding
-    to components described by the `theta` and `sigma` parameters, may be
-    specified as the field used to group and fill the histogram
-    ( see @param fill_aes ).
-`copynumber` - An integer value for a predicted copy state. This is the
-    default field used to group and fill the histogram.
-`batch.var` - An (optional) character vector for improved facet labeling,
-  values should map 1-to-1 to @param obs.df$batch .}
-
-\item{thetas}{An integer-vector or matrix of theta values for a mixture model
-of normal distributions of the different batches. An integer-vector of
-length `k` will indicate a single-batch model with `k` predicted componets.
-A matrix of dimenions `c(k, b)` indicates a multi-batch model with `k`
-predicted components (even if k == 1) and `b` batches.}
-
-\item{sigmas}{an integer-vector or matrix of sigma values for a mixture model
-of normal distributions of the different batches. An integer-vector of
-length `s` will indicate EITHER a single-batch model with `s` predicted
-componets or a multi-batch model with pooled variances and `s` batches.
-This ambiguity is resovled by a correctly-dimensioned `theta` matrix.
-A matrix of dimenions `c(k, b)` indicates a multi-batch (non-pooled) model
-with `k` predicted components (even if k == 1) and `b` batches.}
 }
 \value{
 An object of class `ggplot`
 }
 \description{
-Generates normal densities from theoretical theta and sigma values and plots
-  them over a histogram of observed data.
+Plots normal densities from theoretical mixture models over a histogram of observed data.
+}
+\examples{
+data(SingleBatchPooledExample, package="MixModelViz")
+sbp.summ <- summarize(SingleBatchPooledExample)
+plot_model(sbp.summ)
+
+data(MultiBatchPooledExample, package="MixModelViz")
+mbcnp.summ <- summarize(CopyNumberModel(MultiBatchPooledExample))
+plot_model(mbcnp.summ)
 }

@@ -32,16 +32,13 @@
 #'      The named list should contain named vectors "hist" and "line".
 #' @return An object of class `ggplot`
 #' @examples
-#' model.1 <- MultiBatchModel2(
-#'      c(rnorm(60, -.4, .1), rnorm(120, -.05, .1), rnorm(60, .3, .1)),
-#'      batches=sample.int(2, 240, TRUE))
-#' model.1 <- posteriorSimulation()
-#' summ.1 <- summarize(model.1)
-#' plot_model(summ.1)
+#' data(SingleBatchPooledExample, package="MixModelViz")
+#' sbp.summ <- summarize(SingleBatchPooledExample)
+#' plot_model(sbp.summ)
 #'
-#' data(MultiBatchPooledExample)
-#' summ.2 <- summarize(CopyNumberModel(MultiBatchPooledExample))
-#' plot_model(summ.2)
+#' data(MultiBatchPooledExample, package="MixModelViz")
+#' mbcnp.summ <- summarize(CopyNumberModel(MultiBatchPooledExample))
+#' plot_model(mbcnp.summ)
 #' @export
 #'
 plot_model <- function(summ, fill_aes,
