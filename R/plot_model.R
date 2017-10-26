@@ -1,4 +1,5 @@
-#  TODO: add force_singlebatch to collapse densities for multibatch/pooled models
+#  TODO: refactor plot_model to plot_summary?
+#  TODO: include links to GraphicalParameters in plot_model documentation
 
 ##
 ## DM:  - Too many arguments to pass.
@@ -18,67 +19,70 @@
 ##
 ##
 
-#' Plotting function for `MixtureSummary` objects
-#'
-#' Plots normal densities from theoretical mixture models over a histogram of observed data.
-#'
-#' @param summ a `MixtureSummary` object
-#' @param fill_aes should be "copynumber" or "component", but can be any value
-#'      that can be evaluated by `aes_(fill=as.name(fill_aes))` where `data=obs.df`
-#' @param palette A vector of colors. To specify separate vectors for fill and
-#    color aesthetics, provide a list named vectors, `fill` and `color`.
-#' @param fixed_aes a list of alpha, linetype, and size values that will be
-#'      passed on to geom_hist and geom_line as fixed aesthetic parameters.
-#'      The named list should contain named vectors "hist" and "line".
-#' @return An object of class `ggplot`
-#' @examples
-#' data(SingleBatchPooledExample, package="MixModelViz")
-#' sbp.summ <- summarize(SingleBatchPooledExample)
-#' plot_model(sbp.summ)
-#'
-#' data(MultiBatchPooledExample, package="MixModelViz")
-#' mbcnp.summ <- summarize(CopyNumberModel(MultiBatchPooledExample))
-#' plot_model(mbcnp.summ)
-#' @export
-#'
-plot_model <- function(summ, fill_aes,
-                       palette=c("1"="#56B4E9", "2"="#E69F00", "3"="#009E73",
-                                 "4"="#F0E442", "5"="#0072B2"),
-                       fixed_aes=list(hist=list(alpha=0.5, linetype=0,  size=0),
-                                      line=list(alpha=1,   linetype=1,  size=1))
-                       ) {
 
-  if(is.list(palette)) {
-    stopifnot(all(c("color", "fill") %in% names(palette)))
-  } else {
-    palette <- list(color=palette, fill=palette)
-  }
-  if(missing(fill_aes)) {
-    if(inherits(summ, "CopyNumberMixtureSummary")) {
-      fill_aes <- "copynumber"
-    } else {
-      fill_aes <- "component"
-    }
-  }
+setMethod("init_plot", c("CopyNumberMixtureSummary"), function(summ) {
+  ggplot(mapping=aes(color=copynumber, fill=copynumber))
+})
 
-  ggp <- ggplot(mapping=aes_(color=as.name(fill_aes), fill=as.name(fill_aes))) +
-    geom_histogram(data=getObserved(summ), aes(x.val, ..count..), alpha=fixed_aes$hist$alpha,
-                   linetype=fixed_aes$hist$linetype, size=fixed_aes$hist$size,
-                   bins=nBins(summ), position=position_stack()) + #reverse=TRUE)) +
-    geom_line(data=getTheoretical(summ), aes(x,y, group=component),
-              alpha=fixed_aes$line$alpha, linetype=fixed_aes$line$linetype,
-              size=fixed_aes$line$size) +
-    scale_color_manual(name="Component", values=palette$color) +
-    scale_y_sqrt()
 
-  if(fill_aes=="component") {
-    ggp <- ggp + scale_fill_manual(name="Component", values=palette$fill)
-  } else {
-    fill_name <- fill_aes
-    if (fill_aes=="copynumber") fill_name <- "Copy Number"
-    ggp <- ggp + scale_fill_manual(name=fill_name, values=palette$fill) +
-      guides(color=guide_legend(override.aes=list(fill=NA)))
-  }
+setMethod("init_plot", c("MixtureSummary"), function(summ) {
+  ggplot(mapping=aes(color=component, fill=component))
+})
+
+setMethod("init_scales", c("MixtureSummary", "GraphicalParameters"),
+          function(summ, params) {
+            result <- list()
+            if(!is.null(color_palette(params))) {
+              result <- append(result,
+                               scale_color_manual(name="Component",
+                                                  values=color_palette(params)))
+            }
+
+            if(!is.null(fill_palette(params))) {
+              result <- append(result,
+                               scale_fill_manual(name="Component",
+                                                 values=fill_palette(params)))
+            }
+            result
+})
+
+setMethod("init_scales", c("CopyNumberMixtureSummary", "GraphicalParameters"),
+          function(summ, params) {
+            result <- list(guides(color=guide_legend(override.aes=list(fill=NA))))
+            if(!is.null(color_palette(params))) {
+              result <- append(result,
+                               scale_color_manual(name="Component",
+                                                  values=color_palette(params)))
+            }
+
+            if(!is.null(fill_palette(params))) {
+              result <- append(result,
+                               scale_fill_manual(name="CopyNumber",
+                                                 values=fill_palette(params)))
+            }
+            result
+})
+
+setMethod("plot_model", c("MixtureSummary", "GraphicalParameters"),
+          function(summ, params) {
+
+        ggp <- init_plot(summ) +
+          do.call("geom_histogram",
+                  modifyList(
+                    list(
+                      data=getObserved(summ),
+                      mapping=aes(x.val, ..count..),
+                      bins=nBins(summ),
+                      position=position_stack()),
+                    getHistogramParams(params))) +
+          do.call("geom_line",
+                  modifyList(
+                    list(
+                      data=getTheoretical(summ),
+                      mapping=aes(x, y, group=component)),
+                    getLineParams(params))) +
+          init_scales(summ, params) +
+          scale_y_sqrt()
 
 
   nBatches <- length(levels(getTheoretical(summ)$batch))
@@ -107,4 +111,8 @@ plot_model <- function(summ, fill_aes,
   }
 
   ggp
-}
+})
+
+
+setMethod("plot_model", c("MixtureSummary", "missing"),
+          function(summ, params) plot_model(summ, new("GraphicalParameters")))

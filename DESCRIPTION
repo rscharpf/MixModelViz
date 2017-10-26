@@ -1,6 +1,6 @@
 Package: MixModelViz
 Title: Plot mixture models with applications to copy number / batch effects 
-Version: 0.0.4
+Version: 0.0.5
 Authors: David McKean and Robert Scharpf
 Description: Plot mixture models with applications to copy number / batch effects 
 Depends: R (>= 3.4.0)
@@ -14,9 +14,10 @@ Collate:
     'AllClasses.R'
     'CopyNumberDataFrame.R'
     'data.R'
-    'methods-CopyNumberMixtureSummary.R'
-    'methods-MixtureModel.R'
     'methods-MixtureSummary.R'
+    'methods-CopyNumberMixtureSummary.R'
+    'methods-GraphicalParameters.R'
+    'methods-MixtureModel.R'
     'plot_model.R'
 Suggests: testthat
 RoxygenNote: 6.0.1

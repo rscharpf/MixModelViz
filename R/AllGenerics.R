@@ -103,3 +103,69 @@ setGeneric("getThetaMatrix", function(model) standardGeneric("getThetaMatrix"))
 #' @docType methods
 #' @rdname getSigmaMatrix-method
 setGeneric("getSigmaMatrix", function(model) standardGeneric("getSigmaMatrix"))
+
+
+#' Get graphical parameters for plotting a histogram of observed values.
+#'
+#' This function retrieves the non-NULL values from histogram.* slots in a GraphicalParameters object.
+#' @param params see \code{showMethods(k)}
+#' @return A named list of parameters that may be passed to a ggplot::geom_histogram function call.
+#' @export
+#' @docType methods
+#' @rdname getHistogramParams-method
+setGeneric("getHistogramParams", function(params) standardGeneric("getHistogramParams"))
+
+
+#' Get graphical parameters for plotting a density line of theoretical models.
+#'
+#' This function retrieves the non-NULL values from line.* slots in a GraphicalParameters object.
+#' @param params see \code{showMethods(k)}
+#' @return A named list of parameters that may be passed to a ggplot::geom_line function call.
+#' @export
+#' @docType methods
+#' @rdname getLineParams-method
+setGeneric("getLineParams", function(params) standardGeneric("getLineParams"))
+
+
+#' @rdname fill_palette-method
+setGeneric("fill_palette", function(params) standardGeneric("fill_palette"))
+
+
+#' @rdname color_palette-method
+setGeneric("color_palette", function(params) standardGeneric("color_palette"))
+
+
+setGeneric("init_plot", function(summ) standardGeneric("init_plot"))
+
+
+setGeneric("init_scales", function(summ, params) standardGeneric("init_scales"))
+
+#' Plotting function for `MixtureSummary` objects
+#'
+#' Plots normal densities from theoretical mixture models over a histogram of observed data.
+#'
+#' @param summ a `MixtureSummary` object.
+#' @param params A GraphicalParamters object. If missing, a new object will be
+#'      instantiated.
+#'      GraphicalParameters includes a color palette for fill and color
+#'      aesthetics, which will be included via `scale_*_manual`. Setting these
+#'      palettes to NULL will cause the `scale_*_manual` function call to be
+#'      removed from the ggplot object.
+#'      GraphicalParameters also includes default alpha, linetype, and size
+#'      aesthetics for the geom_histogram and geom_line layers. These values
+#'      may be set by vectors of length 1 or of a length equal to number of
+#'      data points represented in these layers. Setting a value to NULL will
+#'      cause the aesthetic to be removed from the geom_* function call.
+#' @return An object of class `ggplot`
+#' @examples
+#' data(SingleBatchPooledExample, package="MixModelViz")
+#' sbp.summ <- summarize(SingleBatchPooledExample)
+#' plot_model(sbp.summ)
+#'
+#' data(MultiBatchPooledExample, package="MixModelViz")
+#' mbcnp.summ <- summarize(CopyNumberModel(MultiBatchPooledExample))
+#' plot_model(mbcnp.summ, new("GraphicalParameters", line.size=2))
+#'
+#' @export
+setGeneric("plot_model", function(summ, params) standardGeneric("plot_model"))
+

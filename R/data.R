@@ -2,7 +2,6 @@
 #'
 #' @docType data
 #' @name SingleBatchPooledExample
-#' @export
 #' @usage SingleBatchModelExample
 #' @author David McKean
 #' @return An example of a `SingleBatchPooled`
@@ -13,7 +12,6 @@
 #'
 #' @docType data
 #' @name MultiBatchPooledExample
-#' @export
 #' @usage MultiBatchPooledExample
 #' @author David McKean
 #' @return An example of a `MultiBatchPooled`

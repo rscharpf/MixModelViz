@@ -3,7 +3,7 @@
 \docType{class}
 \name{MixtureSummary-class}
 \alias{MixtureSummary-class}
-\title{An object summarizing the observed mixture model and theoretical models as plottable data.frames}
+\title{A plottable summary of a mixture model}
 \description{
 An object summarizing the observed mixture model and theoretical models as plottable data.frames
 }

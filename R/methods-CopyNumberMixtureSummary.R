@@ -1,4 +1,4 @@
-#' @include AllClasses.R
+#' @include methods-MixtureSummary.R
 NULL
 
 

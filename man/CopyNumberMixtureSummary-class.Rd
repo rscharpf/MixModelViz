@@ -3,7 +3,7 @@
 \docType{class}
 \name{CopyNumberMixtureSummary-class}
 \alias{CopyNumberMixtureSummary-class}
-\title{An object summarizing the observed mixture model and theoretical models as plottable data.frames.}
+\title{A plottable summary of a mixture model and inferred copy number}
 \description{
 An object summarizing the observed mixture model and theoretical models as plottable data.frames.
 }
