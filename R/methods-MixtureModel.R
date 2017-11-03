@@ -94,6 +94,14 @@ setMethod("summarizeTheoretical", c("MixtureModel", "data.frame"), function(mode
   theta.mat <- getThetaMatrix(model)
   sigma.mat <- getSigmaMatrix(model)
   stopifnot(identical(dim(theta.mat), dim(sigma.mat)))
+  stopifnot("df" %in% slotNames(model))
+  deg.f <- model@df
+
+  if(!exists("dlocScale_t", "package:CNPBayes")) {
+    dlocScale_t <- function(x, nu, mu, sigma) {
+      gamma((nu+1)/2)/(sigma*sqrt(pi*nu)*gamma(nu/2))*(1+1/nu*(((x-mu)/sigma)^2))^(-(nu+1)/2)
+    }
+  }
 
   x.range <- range(obs.df$x.val)
   nBins <- ceiling(sqrt(length(obs.df$x.val)))
@@ -111,7 +119,7 @@ setMethod("summarizeTheoretical", c("MixtureModel", "data.frame"), function(mode
           batch=factor(b, seq(nrow(theta.mat)), ordered=TRUE),
           component=factor(k, seq(ncol(theta.mat)), ordered=TRUE),
           x=seq(x.range[1], x.range[2], length=1000)),
-        y=dnorm(x, theta, sigma)*binSize*crosstab.mat[b,k]
+        y=dlocScale_t(x, deg.f, theta, sigma)*binSize*crosstab.mat[b,k]
       )
     }))
   }))
@@ -146,6 +154,8 @@ setMethod("summarizeTheoretical", c("MultiBatchCopyNumberPooled", "data.frame"),
 #' @rdname summarize-method
 #' @aliases summarize,MixtureModel-method
 setMethod("summarize", c("MixtureModel", "tbl_df"), function(model, ds.tbl) {
+  if(!inherits(model, "SBPt"))
+    warning(sprintf("Warning, attempting to summarize a %s. This branch is for testing plots for SBPt models.", class(model)))
   obs.df <- summarizeObserved(model)
 
   obs.df <- obs.df[match(ds.tbl$tile, tileSummaries(ds.tbl)$tile), ]
@@ -164,6 +174,8 @@ setMethod("summarize", c("MixtureModel", "tbl_df"), function(model, ds.tbl) {
 #' @rdname summarize-method
 #' @aliases summarize,MixtureModel-method
 setMethod("summarize", c("MixtureModel", "missing"), function(model, ds.tbl) {
+  if(!inherits(model, "SBPt"))
+    warning(sprintf("Warning, attempting to summarize a %s. This branch is for testing plots for SBPt models.", class(model)))
   obs.df <- summarizeObserved(model)
   results <- summarizeTheoretical(model, subset(obs.df, batch != "marginal"))
   new("MixtureSummary",
