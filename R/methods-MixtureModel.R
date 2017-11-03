@@ -118,6 +118,25 @@ setMethod("summarizeTheoretical", c("MixtureModel", "data.frame"), function(mode
   list(theoretical=pred.df, nBins=as.integer(nBins))
 })
 
+
+
+#' @rdname summarizeTheoretical-method
+#' @aliases summarizeTheoretical,SingleBatchCopyNumber-method
+setMethod("summarizeTheoretical", c("MultiBatchModel", "data.frame"), function(model, obs.df) {
+  result <- callNextMethod(model, obs.df)
+  marginal.df <- with(result$theoretical, data.frame(
+    theta=NA, sigma=NA,
+    batch="marginal",
+    setNames(
+           aggregate(y, list(x.val=x, component=component),
+                     sum)[,c("component", "x.val", "x")],
+           c("component", "x", "y"))))
+  theor.df <- rbind(result$theoretical, marginal.df)
+  theor.df$batch <- factor(theor.df$batch, c("marginal", levels(result$theoretical$batch)), ordered=TRUE)
+  result$theoretical <- theor.df
+  result
+})
+
 #' @rdname summarizeTheoretical-method
 #' @aliases summarizeTheoretical,SingleBatchCopyNumber-method
 setMethod("summarizeTheoretical", c("SingleBatchCopyNumber", "data.frame"), function(model, obs.df) {
@@ -153,6 +172,9 @@ setMethod("summarize", c("MixtureModel", "tbl_df"), function(model, ds.tbl) {
     stopifnot(ds.tbl$batch == obs.df$batch)
   obs.df$x.val <- ds.tbl$logratio
   obs.df$batch.var <- ds.tbl$batch.var
+  obs.df <- rbind(obs.df, transform(obs.df, batch="marginal", batch.var=""))
+  obs.df$batch <- factor(obs.df$batch, levels=c("marginal", seq(max(batch(model)))), ordered=TRUE)
+
 
   results <- summarizeTheoretical(model, subset(obs.df, batch != "marginal"))
   new("MixtureSummary",

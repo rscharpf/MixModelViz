@@ -88,14 +88,20 @@ setMethod("plot_model", c("MixtureSummary", "GraphicalParameters"),
   nBatches <- length(levels(getTheoretical(summ)$batch))
   # Faceting and legend positioning
   if (nBatches > 1) {
-    batch_labels <- paste("batch", seq(nBatches))
-    # if("batch.var" %in% names(obs.df)) {
-    #   batch_names <- unique(obs.df[,c("batch", "batch.var")])
-    #   batch_labels <- paste(batch_labels, ":",
-    #                         batch_names$batch.var[order(batch_names$batch)])
-    # }
-    names(batch_labels) <- seq(nBatches)
-    batch_labels["marginal"] = "marginal"
+    batch_labels <- batch_counts <- table(getObserved(summ)$batch)
+    batch_labels <- c("marginal", paste("batch", names(batch_labels[-1])))
+    batch_labels <- sprintf("%s (n=%d)", batch_labels, batch_counts)
+    if("batch.var" %in% names(getObserved(summ))) {
+      batch_names <- unique(getObserved(summ)[,c("batch", "batch.var")])
+      stopifnot(all(table(batch_names$batch) == 1))
+      if (!all(batch_names$batch == batch_names$batch.var)) {
+        batch_names <- subset(batch_names, batch != "marginal")
+        batch_labels[-1] <- sprintf("%s : \"%s\"",batch_labels[-1],
+                                    with(subset(batch_names, batch != "marginal"),
+                                         batch.var[order(as.numeric(batch))]))
+      }
+    }
+    names(batch_labels) <- names(batch_counts)
 
     ggp <- ggp + facet_wrap("batch", scales="free_y",
                             ncol=round(sqrt(nBatches + 1)),
