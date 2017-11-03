@@ -148,13 +148,13 @@ setMethod("summarizeTheoretical", c("MultiBatchCopyNumberPooled", "data.frame"),
 setMethod("summarize", c("MixtureModel", "tbl_df"), function(model, ds.tbl) {
   obs.df <- summarizeObserved(model)
 
-  obs.df <- obs.df[match(ds.tib$tile, tileSummaries(ds.tib)$tile), ]
-  if (max(cn.df$batch) > 1)  # Cannot be tested with SingleBatch/Pooled models
-    stopifnot(ds.tib$batch == obs.df$batch)
-  obs.df$x.val <- ds.tib$logratio
-  obs.df$batch.var <- ds.tib$batch.var
+  obs.df <- obs.df[match(ds.tbl$tile, tileSummaries(ds.tbl)$tile), ]
+  if (max(obs.df$batch) > 1)  # Cannot be tested with SingleBatch/Pooled models
+    stopifnot(ds.tbl$batch == obs.df$batch)
+  obs.df$x.val <- ds.tbl$logratio
+  obs.df$batch.var <- ds.tbl$batch.var
 
-  result <- summarizeTheoretical(model, subset(obs.df, batch != "marginal"))
+  results <- summarizeTheoretical(model, subset(obs.df, batch != "marginal"))
   new("MixtureSummary",
       observed=obs.df,
       theoretical=results$theoretical,
