@@ -51,7 +51,7 @@ setMethod("init_scales", c("CopyNumberMixtureSummary", "GraphicalParameters"),
             result <- list(guides(color=guide_legend(override.aes=list(fill=NA))))
             if(!is.null(color_palette(params))) {
               result <- append(result,
-                               scale_color_manual(name="Component",
+                               scale_color_manual(name="CopyNumber",
                                                   values=color_palette(params)))
             }
 
@@ -108,8 +108,7 @@ setMethod("plot_model", c("MixtureSummary", "GraphicalParameters"),
                             labeller=labeller(batch=batch_labels))
 
 
-    n_facets <- nBatches + 1
-    if((n_facets / round(sqrt(n_facets))) %% 1 != 0) {
+    if((nBatches / round(sqrt(nBatches))) %% 1 != 0) {
       ggp <- ggp + theme(legend.position = c(1, 0),
                          legend.justification = c(1, 0),
                          legend.box="horizontal")

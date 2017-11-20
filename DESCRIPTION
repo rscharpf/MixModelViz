@@ -1,6 +1,6 @@
 Package: MixModelViz
 Title: Plot mixture models with applications to copy number / batch effects 
-Version: 0.0.6
+Version: 0.0.7
 Authors: David McKean and Robert Scharpf
 Description: Plot mixture models with applications to copy number / batch effects 
 Depends: R (>= 3.4.0)

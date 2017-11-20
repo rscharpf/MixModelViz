@@ -62,16 +62,6 @@ setMethod("summarizeObserved", "SingleBatchCopyNumber", function(model) {
 })
 
 #' @rdname summarizeObserved-method
-#' @aliases summarizeObserved,MultiBatchModel-method
-setMethod("summarizeObserved", "MultiBatchModel", function(model) {
-  result <- callNextMethod(model)
-  nBatch <- length(levels(result$batch))
-  result <- rbind(result, transform(result, batch="marginal"))
-  result$batch <- factor(result$batch, levels=c("marginal", seq(nBatch)), ordered=TRUE)
-  result
-})
-
-#' @rdname summarizeObserved-method
 #' @aliases summarizeObserved,MultiBatchCopyNumber-method
 setMethod("summarizeObserved", "MultiBatchCopyNumber", function(model) {
   result <- callNextMethod(model)
@@ -122,23 +112,6 @@ setMethod("summarizeTheoretical", c("MixtureModel", "data.frame"), function(mode
 
 #' @rdname summarizeTheoretical-method
 #' @aliases summarizeTheoretical,SingleBatchCopyNumber-method
-setMethod("summarizeTheoretical", c("MultiBatchModel", "data.frame"), function(model, obs.df) {
-  result <- callNextMethod(model, obs.df)
-  marginal.df <- with(result$theoretical, data.frame(
-    theta=NA, sigma=NA,
-    batch="marginal",
-    setNames(
-           aggregate(y, list(x.val=x, component=component),
-                     sum)[,c("component", "x.val", "x")],
-           c("component", "x", "y"))))
-  theor.df <- rbind(result$theoretical, marginal.df)
-  theor.df$batch <- factor(theor.df$batch, c("marginal", levels(result$theoretical$batch)), ordered=TRUE)
-  result$theoretical <- theor.df
-  result
-})
-
-#' @rdname summarizeTheoretical-method
-#' @aliases summarizeTheoretical,SingleBatchCopyNumber-method
 setMethod("summarizeTheoretical", c("SingleBatchCopyNumber", "data.frame"), function(model, obs.df) {
   result <- callNextMethod(model, obs.df)
   result$theoretical$copynumber <- factor(mapping(model), seq(max(mapping(model))))[result$theoretical$component]
@@ -172,14 +145,29 @@ setMethod("summarize", c("MixtureModel", "tbl_df"), function(model, ds.tbl) {
     stopifnot(ds.tbl$batch == obs.df$batch)
   obs.df$x.val <- ds.tbl$logratio
   obs.df$batch.var <- ds.tbl$batch.var
-  obs.df <- rbind(obs.df, transform(obs.df, batch="marginal", batch.var=""))
-  obs.df$batch <- factor(obs.df$batch, levels=c("marginal", seq(max(batch(model)))), ordered=TRUE)
 
 
-  results <- summarizeTheoretical(model, subset(obs.df, batch != "marginal"))
+  results <- summarizeTheoretical(model, obs.df)
+
+  if(inherits(model, "MultiBatchModel")) {
+    obs.df <- rbind(obs.df, transform(obs.df, batch="marginal", batch.var=""))
+    obs.df$batch <- factor(obs.df$batch, levels=c("marginal", seq(max(batch(model)))), ordered=TRUE)
+  } else {
+    obs.df$batch <- "marginal"
+  }
+
+  marginal.df <- with(results$theoretical, data.frame(
+    theta=NA, sigma=NA,
+    setNames(
+      aggregate(y, list(x.val=x, batch=batch, component=component),
+                sum)[,c("batch", "component", "x.val", "x")],
+      c("batch", "component", "x", "y"))))
+
+  theor.df <- rbind(results$theoretical, marginal.df)
+
   new("MixtureSummary",
       observed=obs.df,
-      theoretical=results$theoretical,
+      theoretical=theor.df,
       nBins=results$nBins)
 })
 
@@ -187,11 +175,51 @@ setMethod("summarize", c("MixtureModel", "tbl_df"), function(model, ds.tbl) {
 #' @aliases summarize,MixtureModel-method
 setMethod("summarize", c("MixtureModel", "missing"), function(model, ds.tbl) {
   obs.df <- summarizeObserved(model)
-  results <- summarizeTheoretical(model, subset(obs.df, batch != "marginal"))
+
+  results <- summarizeTheoretical(model, obs.df)
+
+  if(inherits(model, "MultiBatchModel")) {
+    obs.df <- rbind(obs.df, transform(obs.df, batch="marginal"))
+    obs.df$batch <- factor(obs.df$batch, c("marginal", seq(max(batch(model)))), ordered=TRUE)
+    marginal_comp.df <- with(results$theoretical, {
+      tmp.df <- aggregate(y, list(x.val=x, component=component), sum)
+      data.frame(
+        theta = NA,
+        sigma = NA,
+        batch = "marginal",
+        component = tmp.df$component,
+        x = tmp.df$x.val,
+        y = tmp.df$x)
+    })
+    theor.df <- rbind(results$theoretical, marginal_comp.df)
+
+
+  } else {
+    obs.df$batch <- "marginal"
+    theor.df <- transform(results$theoretical, batch="marginal")
+  }
+
+  marginal_batch.df <- with(theor.df, {
+    tmp.df <- aggregate(y, list(x.val=x, batch=batch), sum)
+    data.frame(
+      theta = NA,
+      sigma = NA,
+      batch = tmp.df$batch,
+      component = "marginal",
+      x=tmp.df$x.val,
+      y=tmp.df$x)
+  })
+
+   theor.df <- rbind(theor.df, marginal_batch.df)
+   if(inherits(model, "MultiBatchModel"))
+     theor.df$batch <- factor(theor.df$batch, c("marginal", seq(max(batch(model)))), ordered=TRUE)
+   theor.df$component <- factor(theor.df$component, c("marginal", seq(k(model))), ordered=TRUE)
+
   new("MixtureSummary",
       observed=obs.df,
-      theoretical=results$theoretical,
+      theoretical=theor.df,
       nBins=results$nBins)
+
 })
 
 #' @rdname summarize-method
