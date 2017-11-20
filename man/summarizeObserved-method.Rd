@@ -5,7 +5,6 @@
 \alias{summarizeObserved}
 \alias{summarizeObserved,MixtureModel-method}
 \alias{summarizeObserved,SingleBatchCopyNumber-method}
-\alias{summarizeObserved,MultiBatchModel-method}
 \alias{summarizeObserved,MultiBatchCopyNumber-method}
 \alias{summarizeObserved,MultiBatchCopyNumberPooled-method}
 \title{Create a plottable summary of the observed mixture model.}
@@ -15,8 +14,6 @@ summarizeObserved(model)
 \S4method{summarizeObserved}{MixtureModel}(model)
 
 \S4method{summarizeObserved}{SingleBatchCopyNumber}(model)
-
-\S4method{summarizeObserved}{MultiBatchModel}(model)
 
 \S4method{summarizeObserved}{MultiBatchCopyNumber}(model)
 

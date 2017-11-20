@@ -12,7 +12,7 @@ Default parameters for color and fill scales, fixed aesthetic for histogram and 
 \describe{
 \item{\code{fill.palette}}{A vector of colors used for ggplot's fill aesthetic. Values may be any accepted value (including character or numeric) for `scale_fill_manual(value=)`. Set to NULL to remove the `scale_fill_manual` call from the `plot_model` output. The vector may optionally be named. Default value is a named vector for values 1:5.}
 
-\item{\code{color.palette}}{A vector of colors used for ggplot's color aesthetic. Values may be any accepted value (including character or numeric) for `scale_color_manual(value=)`. Set to NULL to remove the `scale_color_manual` call from the `plot_model` output. The vector may optionally be named. Default value is a named vector for values 1:5.}
+\item{\code{color.palette}}{A vector of colors used for ggplot's color aesthetic. Values may be any accepted value (including character or numeric) for `scale_color_manual(value=)`. Set to NULL to remove the `scale_color_manual` call from the `plot_model` output. The vector may optionally be named. Default value is a named vector for values c("marginal", 1, 2, 3, 4, 5).}
 
 \item{\code{histogram.alpha}}{Numeric vector of length 1 or the number of observed data points. Values should be acceptable by scales::alpha(), that is, in the range [0,1]. Set to null to remove the alpha argument from the `geom_histogram` call. Default value is 0.5}
 

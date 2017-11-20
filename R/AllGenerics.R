@@ -76,13 +76,12 @@ setGeneric("summarizeTheoretical", function(model, obs.df) standardGeneric("summ
 
 #' Summarize a MixtureModel into a set of data.frames that can be plotted.
 #'
-#' This function returns a lsit of two data.frames (observed and predicted) that can be plotted over eachother. The observed values can be plotted as a histogram when split by `nBins(MixtureSumamry.obj)`. The theoretical distribution has been scaled to be plotted over the histogram when plotted as described.
+#' This function returns a list of two data.frames (observed and predicted) that can be plotted over each other. The observed values can be plotted as a histogram when split by `nBins(MixtureSumamry.obj)`. The theoretical distribution has been scaled to be plotted over the histogram when plotted as described.
 #' @param model a MixtureModel-derived object
-#' @param ds.tbl (optional) a tibble used to upsample observations in `object`.
 #' @return A MixtureSummary object.
 #' @export
 #' @rdname summarize-method
-setGeneric("summarize", function(model, ds.tbl) standardGeneric("summarize"))
+setGeneric("summarize", function(model) standardGeneric("summarize"))
 
 #' Wrapper function for a `MixtureModel`'s theta accessor.
 #'
@@ -127,11 +126,9 @@ setGeneric("getHistogramParams", function(params) standardGeneric("getHistogramP
 setGeneric("getLineParams", function(params) standardGeneric("getLineParams"))
 
 
-#' @rdname fill_palette-method
 setGeneric("fill_palette", function(params) standardGeneric("fill_palette"))
 
 
-#' @rdname color_palette-method
 setGeneric("color_palette", function(params) standardGeneric("color_palette"))
 
 

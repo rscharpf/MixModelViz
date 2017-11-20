@@ -137,43 +137,7 @@ setMethod("summarizeTheoretical", c("MultiBatchCopyNumberPooled", "data.frame"),
 
 #' @rdname summarize-method
 #' @aliases summarize,MixtureModel-method
-setMethod("summarize", c("MixtureModel", "tbl_df"), function(model, ds.tbl) {
-  obs.df <- summarizeObserved(model)
-
-  obs.df <- obs.df[match(ds.tbl$tile, tileSummaries(ds.tbl)$tile), ]
-  if (max(obs.df$batch) > 1)  # Cannot be tested with SingleBatch/Pooled models
-    stopifnot(ds.tbl$batch == obs.df$batch)
-  obs.df$x.val <- ds.tbl$logratio
-  obs.df$batch.var <- ds.tbl$batch.var
-
-
-  results <- summarizeTheoretical(model, obs.df)
-
-  if(inherits(model, "MultiBatchModel")) {
-    obs.df <- rbind(obs.df, transform(obs.df, batch="marginal", batch.var=""))
-    obs.df$batch <- factor(obs.df$batch, levels=c("marginal", seq(max(batch(model)))), ordered=TRUE)
-  } else {
-    obs.df$batch <- "marginal"
-  }
-
-  marginal.df <- with(results$theoretical, data.frame(
-    theta=NA, sigma=NA,
-    setNames(
-      aggregate(y, list(x.val=x, batch=batch, component=component),
-                sum)[,c("batch", "component", "x.val", "x")],
-      c("batch", "component", "x", "y"))))
-
-  theor.df <- rbind(results$theoretical, marginal.df)
-
-  new("MixtureSummary",
-      observed=obs.df,
-      theoretical=theor.df,
-      nBins=results$nBins)
-})
-
-#' @rdname summarize-method
-#' @aliases summarize,MixtureModel-method
-setMethod("summarize", c("MixtureModel", "missing"), function(model, ds.tbl) {
+setMethod("summarize", c("MixtureModel"), function(model) {
   obs.df <- summarizeObserved(model)
 
   results <- summarizeTheoretical(model, obs.df)
@@ -181,6 +145,7 @@ setMethod("summarize", c("MixtureModel", "missing"), function(model, ds.tbl) {
   if(inherits(model, "MultiBatchModel")) {
     obs.df <- rbind(obs.df, transform(obs.df, batch="marginal"))
     obs.df$batch <- factor(obs.df$batch, c("marginal", seq(max(batch(model)))), ordered=TRUE)
+
     marginal_comp.df <- with(results$theoretical, {
       tmp.df <- aggregate(y, list(x.val=x, component=component), sum)
       data.frame(
@@ -224,42 +189,21 @@ setMethod("summarize", c("MixtureModel", "missing"), function(model, ds.tbl) {
 
 #' @rdname summarize-method
 #' @aliases summarize,SingleBatchCopyNumber-method
-setMethod("summarize", c("SingleBatchCopyNumber", "tbl_df"), function(model, ds.tbl) {
-  result <- callNextMethod(model, ds.tbl)
-  as(result, "CopyNumberMixtureSummary")
-})
-
-#' @rdname summarize-method
-#' @aliases summarize,SingleBatchCopyNumber-method
-setMethod("summarize", c("SingleBatchCopyNumber", "missing"), function(model, ds.tbl) {
+setMethod("summarize", c("SingleBatchCopyNumber"), function(model) {
   result <- callNextMethod(model)
   as(result, "CopyNumberMixtureSummary")
 })
 
 #' @rdname summarize-method
 #' @aliases summarize,MultiBatchCopyNumber-method
-setMethod("summarize", c("MultiBatchCopyNumber", "tbl_df"), function(model, ds.tbl) {
-  result <- callNextMethod(model, ds.tbl)
-  as(result, "CopyNumberMixtureSummary")
-})
-
-#' @rdname summarize-method
-#' @aliases summarize,MultiBatchCopyNumber-method
-setMethod("summarize", c("MultiBatchCopyNumber", "missing"), function(model, ds.tbl) {
+setMethod("summarize", c("MultiBatchCopyNumber"), function(model) {
   result <- callNextMethod(model)
   as(result, "CopyNumberMixtureSummary")
 })
 
 #' @rdname summarize-method
 #' @aliases summarize,MultiBatchCopyNumberPooled-method
-setMethod("summarize", c("MultiBatchCopyNumberPooled", "tbl_df"), function(model, ds.tbl) {
-  result <- callNextMethod(model, ds.tbl)
-  as(result, "CopyNumberMixtureSummary")
-})
-
-#' @rdname summarize-method
-#' @aliases summarize,MultiBatchCopyNumberPooled-method
-setMethod("summarize", c("MultiBatchCopyNumberPooled", "missing"), function(model, ds.tbl) {
+setMethod("summarize", c("MultiBatchCopyNumberPooled"), function(model) {
   result <- callNextMethod(model)
   as(result, "CopyNumberMixtureSummary")
 })

@@ -34,12 +34,8 @@ setMethod("getLineParams", c("GraphicalParameters"), function(params) {
 })
 
 
-#' @rdname fill_palette-method
-#' @aliases fill_palette,GraphicalParameters-method
 setMethod("fill_palette", "GraphicalParameters", function(params) params@fill.palette)
 
 
-#' @rdname color_palette-method
-#' @aliases color_palette,GraphicalParameters-method
 setMethod("color_palette", "GraphicalParameters", function(params) params@color.palette)
 
