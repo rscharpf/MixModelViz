@@ -28,12 +28,12 @@ An object of class `ggplot`
 Plots normal densities from theoretical mixture models over a histogram of observed data.
 }
 \examples{
-data(SingleBatchPooledExample, package="MixModelViz")
-sbp.summ <- summarize(SingleBatchPooledExample)
+data(CNPBayes_SBP, package="MixModelViz")
+sbp.summ <- summarize(CNPBayes_SBP)
 plot_model(sbp.summ)
 
-data(MultiBatchPooledExample, package="MixModelViz")
-mbcnp.summ <- summarize(CopyNumberModel(MultiBatchPooledExample))
+data(CNPBayes_MBP, package="MixModelViz")
+mbcnp.summ <- summarize(CopyNumberModel(CNPBayes_MBP))
 plot_model(mbcnp.summ, new("GraphicalParameters", line.size=2))
 
 }

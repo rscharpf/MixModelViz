@@ -155,12 +155,12 @@ setGeneric("init_scales", function(summ, params) standardGeneric("init_scales"))
 #'      cause the aesthetic to be removed from the geom_* function call.
 #' @return An object of class `ggplot`
 #' @examples
-#' data(SingleBatchPooledExample, package="MixModelViz")
-#' sbp.summ <- summarize(SingleBatchPooledExample)
+#' data(CNPBayes_SBP, package="MixModelViz")
+#' sbp.summ <- summarize(CNPBayes_SBP)
 #' plot_model(sbp.summ)
 #'
-#' data(MultiBatchPooledExample, package="MixModelViz")
-#' mbcnp.summ <- summarize(CopyNumberModel(MultiBatchPooledExample))
+#' data(CNPBayes_MBP, package="MixModelViz")
+#' mbcnp.summ <- summarize(CopyNumberModel(CNPBayes_MBP))
 #' plot_model(mbcnp.summ, new("GraphicalParameters", line.size=2))
 #'
 #' @export

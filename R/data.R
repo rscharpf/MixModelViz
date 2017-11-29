@@ -1,20 +1,20 @@
 #' This data is an instance of SingleBatchPooled
 #'
 #' @docType data
-#' @name SingleBatchPooledExample
-#' @usage SingleBatchModelExample
+#' @name CNPBayes_SBP
+#' @usage CNPBayes_SBP
 #' @author David McKean
 #' @return An example of a `SingleBatchPooled`
-#' SingleBatchPooledExample
-"SingleBatchPooledExample"
+#' CNPBayes_SBP
+"CNPBayes_SBP"
 
 #' This data is an instance of MultiBatchPooled
 #'
 #' @docType data
-#' @name MultiBatchPooledExample
-#' @usage MultiBatchPooledExample
+#' @name CNPBayes_MBP
+#' @usage CNPBayes_MBP
 #' @author David McKean
 #' @return An example of a `MultiBatchPooled`
-#' MultiBatchPooledExample
-"MultiBatchPooledExample"
+#' CNPBayes_MBP
+"CNPBayes_MBP"
 
