@@ -140,12 +140,14 @@ setMethod("summarizeTheoretical", c("MultiBatchCopyNumberPooled", "data.frame"),
 setMethod("summarize", c("MixtureModel"), function(model) {
   obs.df <- summarizeObserved(model)
 
-  results <- summarizeTheoretical(model, obs.df)
 
   if(inherits(model, "MultiBatchModel")) {
+    results <- summarizeTheoretical(model, obs.df)
+    # Add marginal batch to observed summary
     obs.df <- rbind(obs.df, transform(obs.df, batch="marginal"))
     obs.df$batch <- factor(obs.df$batch, c("marginal", seq(max(batch(model)))), ordered=TRUE)
 
+    # Add marginal batch to theoretical summary
     marginal_comp.df <- with(results$theoretical, {
       tmp.df <- aggregate(y, list(x.val=x, component=component), sum)
       data.frame(
@@ -160,10 +162,15 @@ setMethod("summarize", c("MixtureModel"), function(model) {
 
 
   } else {
+    # Recode batch to marginal for both summaries
+    obs.df$batch <- 1
+    results <- summarizeTheoretical(model, obs.df)
     obs.df$batch <- "marginal"
     theor.df <- transform(results$theoretical, batch="marginal")
   }
 
+
+  # Add marginal component to all batches (including marginal batch)
   marginal_batch.df <- with(theor.df, {
     tmp.df <- aggregate(y, list(x.val=x, batch=batch), sum)
     data.frame(
@@ -176,6 +183,8 @@ setMethod("summarize", c("MixtureModel"), function(model) {
   })
 
    theor.df <- rbind(theor.df, marginal_batch.df)
+
+   # Refactor batch and components
    if(inherits(model, "MultiBatchModel"))
      theor.df$batch <- factor(theor.df$batch, c("marginal", seq(max(batch(model)))), ordered=TRUE)
    theor.df$component <- factor(theor.df$component, c("marginal", seq(k(model))), ordered=TRUE)
