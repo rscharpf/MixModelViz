@@ -53,6 +53,26 @@ setGeneric("getTheoretical", function(object) standardGeneric("getTheoretical"))
 #' @rdname nBins-method
 setGeneric("nBins", function(object) standardGeneric("nBins"))
 
+#' TODO add title
+#'
+#' TODO document
+#' @param summ see \code{showMethods(addMarginalBatch)}
+#' @return A `MixtureSummary` object
+#' @export
+#' @docType methods
+#' @rdname addMarginalBatch-method
+setGeneric("addMarginalBatch", function(summ) standardGeneric("addMarginalBatch"))
+
+#' TODO add title
+#'
+#' TODO document
+#' @param summ see \code{showMethods(addMarginalModel)}
+#' @return A `MixtureSummary` object
+#' @export
+#' @docType methods
+#' @rdname addMarginalModel-method
+setGeneric("addMarginalModel", function(summ) standardGeneric("addMarginalModel"))
+
 #' Create a plottable summary of the observed mixture model.
 #'
 #' This function retrieves the observed values, predicted component, and batch identifiers from a `MixtureModel` object. Suitable for plotting counts with a histogram.
@@ -157,10 +177,13 @@ setGeneric("init_scales", function(summ, params) standardGeneric("init_scales"))
 #' @examples
 #' data(CNPBayes_SBP, package="MixModelViz")
 #' sbp.summ <- summarize(CNPBayes_SBP)
+#' sbp.summ <- addMarginalModel(sbp.summ)
 #' plot_summary(sbp.summ)
 #'
 #' data(CNPBayes_MBP, package="MixModelViz")
 #' mbcnp.summ <- summarize(CNPBayes::CopyNumberModel(CNPBayes_MBP))
+#' mbcnp.summ <- addMarginalModel(mbcnp.summ)
+#' mbcpn.summ <- addMarginalBatch(mbcnp.summ)
 #' plot_summary(mbcnp.summ, new("GraphicalParameters", line.size=2))
 #'
 #' @export

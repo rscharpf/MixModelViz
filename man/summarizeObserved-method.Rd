@@ -4,6 +4,7 @@
 \name{summarizeObserved}
 \alias{summarizeObserved}
 \alias{summarizeObserved,MixtureModel-method}
+\alias{summarizeObserved,SingleBatchModel-method}
 \alias{summarizeObserved,SingleBatchCopyNumber-method}
 \alias{summarizeObserved,MultiBatchCopyNumber-method}
 \alias{summarizeObserved,MultiBatchCopyNumberPooled-method}
@@ -12,6 +13,8 @@
 summarizeObserved(model)
 
 \S4method{summarizeObserved}{MixtureModel}(model)
+
+\S4method{summarizeObserved}{SingleBatchModel}(model)
 
 \S4method{summarizeObserved}{SingleBatchCopyNumber}(model)
 

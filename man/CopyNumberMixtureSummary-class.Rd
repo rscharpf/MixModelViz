@@ -12,7 +12,7 @@ An object summarizing the observed mixture model and theoretical models as plott
 \describe{
 \item{\code{observed}}{data.frame of observed values. Must have the following columns: "batch" (bactor), "component" (factor), "copynumber" (factor), "x.val" (numeric). Otherwise identical to `MixtureSummary` .}
 
-\item{\code{predicted}}{data.frame of predicted densities. Must have the following columns: "batch" (factor), "component" (factor), "copynumber" (factor), "x" (numeric), "y" (numeric). Otherwise identical to `MixtureSummary` .}
+\item{\code{theoretical}}{data.frame of predicted densities. Must have the following columns: "batch" (factor), "component" (factor), "copynumber" (factor), "x" (numeric), "y" (numeric). Otherwise identical to `MixtureSummary` .}
 
 \item{\code{nBins}}{integer value for reccomended number of bins when plotting over the exact range of `.Data@observed$x.val` . Identical to `MixtureSummary` .}
 }}

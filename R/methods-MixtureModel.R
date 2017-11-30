@@ -54,6 +54,14 @@ setMethod("summarizeObserved", "MixtureModel", function(model) {
 })
 
 #' @rdname summarizeObserved-method
+#' @aliases summarizeObserved,SingleBatchModel-method
+setMethod("summarizeObserved", "SingleBatchModel", function(model) {
+  result <- callNextMethod(model)
+  result$batch <- factor(1, ordered=TRUE)
+  result
+})
+
+#' @rdname summarizeObserved-method
 #' @aliases summarizeObserved,SingleBatchCopyNumber-method
 setMethod("summarizeObserved", "SingleBatchCopyNumber", function(model) {
   result <- callNextMethod(model)
@@ -92,29 +100,29 @@ setMethod("summarizeTheoretical", c("MixtureModel", "data.frame"), function(mode
   crosstab.mat <- as.matrix(table(factor(obs.df$batch, seq(nrow(theta.mat))),
                                   obs.df$component))
 
-  pred.df <- Reduce(rbind, lapply(seq(nrow(theta.mat)), function(b) {
+  theor.df <- Reduce(rbind, lapply(seq(nrow(theta.mat)), function(b) {
     Reduce(rbind, lapply(seq(ncol(theta.mat)), function(k) {
-      transform(
-        data.frame(
-          theta=theta.mat[b,k],
-          sigma=sigma.mat[b,k],
-          batch=factor(b, seq(nrow(theta.mat)), ordered=TRUE),
-          component=factor(k, seq(ncol(theta.mat)), ordered=TRUE),
-          x=seq(x.range[1], x.range[2], length=1000)),
-        y=dnorm(x, theta, sigma)*binSize*crosstab.mat[b,k]
-      )
+      x <- seq(x.range[1], x.range[2], length=1000)
+      data.frame(
+        theta=theta.mat[b,k],
+        sigma=sigma.mat[b,k],
+        batch=factor(b, seq(nrow(theta.mat)), ordered=TRUE),
+        component=factor(k, seq(ncol(theta.mat)), ordered=TRUE),
+        x=x,
+        y=dnorm(x, theta.mat[b,k], sigma.mat[b,k])*binSize*crosstab.mat[b,k])
     }))
   }))
-  list(theoretical=pred.df, nBins=as.integer(nBins))
-})
 
+  list(theoretical=theor.df, nBins=as.integer(nBins))
+})
 
 
 #' @rdname summarizeTheoretical-method
 #' @aliases summarizeTheoretical,SingleBatchCopyNumber-method
 setMethod("summarizeTheoretical", c("SingleBatchCopyNumber", "data.frame"), function(model, obs.df) {
   result <- callNextMethod(model, obs.df)
-  result$theoretical$copynumber <- factor(mapping(model), seq(max(mapping(model))))[result$theoretical$component]
+  copynumber_mapping <- factor(mapping(model), seq(max(mapping(model))), ordered=TRUE)
+  result$theoretical$copynumber <- copynumber_mapping[result$theoretical$component]
   result
 })
 
@@ -122,7 +130,8 @@ setMethod("summarizeTheoretical", c("SingleBatchCopyNumber", "data.frame"), func
 #' @aliases summarizeTheoretical,MultiBatchCopyNumber-method
 setMethod("summarizeTheoretical", c("MultiBatchCopyNumber", "data.frame"), function(model, obs.df) {
   result <- callNextMethod(model, obs.df)
-  result$theoretical$copynumber <- factor(mapping(model), seq(max(mapping(model))))[result$theoretical$component]
+  copynumber_mapping <- factor(mapping(model), seq(max(mapping(model))), ordered=TRUE)
+  result$theoretical$copynumber <- copynumber_mapping[result$theoretical$component]
   result
 })
 
@@ -130,7 +139,8 @@ setMethod("summarizeTheoretical", c("MultiBatchCopyNumber", "data.frame"), funct
 #' @aliases summarizeTheoretical,MultiBatchCopyNumberPooled-method
 setMethod("summarizeTheoretical", c("MultiBatchCopyNumberPooled", "data.frame"), function(model, obs.df) {
   result <- callNextMethod(model, obs.df)
-  result$theoretical$copynumber <- factor(mapping(model), seq(max(mapping(model))))[result$theoretical$component]
+  copynumber_mapping <- factor(mapping(model), seq(max(mapping(model))), ordered=TRUE)
+  result$theoretical$copynumber <- copynumber_mapping[result$theoretical$component]
   result
 })
 
@@ -139,61 +149,11 @@ setMethod("summarizeTheoretical", c("MultiBatchCopyNumberPooled", "data.frame"),
 #' @aliases summarize,MixtureModel-method
 setMethod("summarize", c("MixtureModel"), function(model) {
   obs.df <- summarizeObserved(model)
-
-
-  if(inherits(model, "MultiBatchModel")) {
-    results <- summarizeTheoretical(model, obs.df)
-    # Add marginal batch to observed summary
-    obs.df <- rbind(obs.df, transform(obs.df, batch="marginal"))
-    obs.df$batch <- factor(obs.df$batch, c("marginal", seq(max(batch(model)))), ordered=TRUE)
-
-    # Add marginal batch to theoretical summary
-    marginal_comp.df <- with(results$theoretical, {
-      tmp.df <- aggregate(y, list(x.val=x, component=component), sum)
-      data.frame(
-        theta = NA,
-        sigma = NA,
-        batch = "marginal",
-        component = tmp.df$component,
-        x = tmp.df$x.val,
-        y = tmp.df$x)
-    })
-    theor.df <- rbind(results$theoretical, marginal_comp.df)
-
-
-  } else {
-    # Recode batch to marginal for both summaries
-    obs.df$batch <- 1
-    results <- summarizeTheoretical(model, obs.df)
-    obs.df$batch <- "marginal"
-    theor.df <- transform(results$theoretical, batch="marginal")
-  }
-
-
-  # Add marginal component to all batches (including marginal batch)
-  marginal_batch.df <- with(theor.df, {
-    tmp.df <- aggregate(y, list(x.val=x, batch=batch), sum)
-    data.frame(
-      theta = NA,
-      sigma = NA,
-      batch = tmp.df$batch,
-      component = "marginal",
-      x=tmp.df$x.val,
-      y=tmp.df$x)
-  })
-
-   theor.df <- rbind(theor.df, marginal_batch.df)
-
-   # Refactor batch and components
-   if(inherits(model, "MultiBatchModel"))
-     theor.df$batch <- factor(theor.df$batch, c("marginal", seq(max(batch(model)))), ordered=TRUE)
-   theor.df$component <- factor(theor.df$component, c("marginal", seq(k(model))), ordered=TRUE)
-
+  result <- summarizeTheoretical(model, obs.df)
   new("MixtureSummary",
       observed=obs.df,
-      theoretical=theor.df,
-      nBins=results$nBins)
-
+      theoretical=result$theoretical,
+      nBins=result$nBins)
 })
 
 #' @rdname summarize-method
