@@ -14,7 +14,7 @@ getThetaMatrix(model)
 \S4method{getThetaMatrix}{SingleBatchModel}(model)
 }
 \arguments{
-\item{object}{see \code{showMethods(k)}}
+\item{model}{see \code{showMethods(k)}}
 }
 \value{
 A "b X k" numeric matrix where b is the number batches and k is the number of predicted components.

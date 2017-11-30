@@ -1,32 +1,13 @@
-#  TODO: refactor plot_model to plot_summary?
-#  TODO: include links to GraphicalParameters in plot_model documentation
-
-##
-## DM:  - Too many arguments to pass.
-##      - plot_model is doing too much work
-##
-## Suggest the following pseudocode as a template, where the function summarize
-## returns all the data that is needed for plotting ( a list of tibbles )
-##
-## sums <- summarize( model )  ## a list of tibbles: (observed and predicted)
-## plotModel( sums )
-##
-## The only other argument (optional) would be a list of parameters for the
-## plotting (fill_aes, etc).  i.e.,
-##
-## params <- graphicalParams() ## returns list with defaults
-## plotModel( sums, params )
-##
-##
+#  TODO: include links to GraphicalParameters in plot_summary documentation
 
 
 setMethod("init_plot", c("CopyNumberMixtureSummary"), function(summ) {
-  ggplot(mapping=aes(color=copynumber, fill=copynumber))
+  ggplot(mapping=aes_string(color="copynumber", fill="copynumber"))
 })
 
 
 setMethod("init_plot", c("MixtureSummary"), function(summ) {
-  ggplot(mapping=aes(color=component, fill=component))
+  ggplot(mapping=aes_string(color="component", fill="component"))
 })
 
 setMethod("init_scales", c("MixtureSummary", "GraphicalParameters"),
@@ -48,7 +29,7 @@ setMethod("init_scales", c("MixtureSummary", "GraphicalParameters"),
 
 setMethod("init_scales", c("CopyNumberMixtureSummary", "GraphicalParameters"),
           function(summ, params) {
-            result <- list(guides(color=guide_legend(override.aes=list(fill=NA))))
+            result <- list()
             if(!is.null(color_palette(params))) {
               result <- append(result,
                                scale_color_manual(name="CopyNumber",
@@ -63,7 +44,9 @@ setMethod("init_scales", c("CopyNumberMixtureSummary", "GraphicalParameters"),
             result
 })
 
-setMethod("plot_model", c("MixtureSummary", "GraphicalParameters"),
+#' @rdname plot_summary-method
+#' @aliases plot_summary,MixtureSummary,GraphicalParameters-method
+setMethod("plot_summary", c("MixtureSummary", "GraphicalParameters"),
           function(summ, params) {
 
         ggp <- init_plot(summ) +
@@ -71,7 +54,7 @@ setMethod("plot_model", c("MixtureSummary", "GraphicalParameters"),
                   modifyList(
                     list(
                       data=getObserved(summ),
-                      mapping=aes(x.val, ..count..),
+                      mapping=aes_string("x.val", "..count.."),
                       bins=nBins(summ),
                       position=position_stack()),
                     getHistogramParams(params))) +
@@ -79,7 +62,7 @@ setMethod("plot_model", c("MixtureSummary", "GraphicalParameters"),
                   modifyList(
                     list(
                       data=getTheoretical(summ),
-                      mapping=aes(x, y, group=component)),
+                      mapping=aes_string("x", "y", group="component")),
                     getLineParams(params))) +
           init_scales(summ, params) +
           scale_y_sqrt()
@@ -91,16 +74,7 @@ setMethod("plot_model", c("MixtureSummary", "GraphicalParameters"),
     batch_labels <- batch_counts <- table(getObserved(summ)$batch)
     batch_labels <- c("marginal", paste("batch", names(batch_labels[-1])))
     batch_labels <- sprintf("%s (n=%d)", batch_labels, batch_counts)
-    if("batch.var" %in% names(getObserved(summ))) {
-      batch_names <- unique(getObserved(summ)[,c("batch", "batch.var")])
-      stopifnot(all(table(batch_names$batch) == 1))
-      if (!all(batch_names$batch == batch_names$batch.var)) {
-        batch_names <- subset(batch_names, batch != "marginal")
-        batch_labels[-1] <- sprintf("%s : \"%s\"",batch_labels[-1],
-                                    with(subset(batch_names, batch != "marginal"),
-                                         batch.var[order(as.numeric(batch))]))
-      }
-    }
+
     names(batch_labels) <- names(batch_counts)
 
     ggp <- ggp + facet_wrap("batch", scales="free_y",
@@ -119,5 +93,7 @@ setMethod("plot_model", c("MixtureSummary", "GraphicalParameters"),
 })
 
 
-setMethod("plot_model", c("MixtureSummary", "missing"),
-          function(summ, params) plot_model(summ, new("GraphicalParameters")))
+#' @rdname plot_summary-method
+#' @aliases plot_summary,MixtureSummary,missing-method
+setMethod("plot_summary", c("MixtureSummary", "missing"),
+          function(summ, params) plot_summary(summ, new("GraphicalParameters")))
