@@ -111,9 +111,9 @@ setMethod("addMarginalModel", "MixtureSummary", function(summ) {
                                  ordered=TRUE)
   } else {
     # For clarity, do not recode k=1 to "marginal"
-    warning(sprintf(cat("Only one component detected in %s object,",
-                        "marginal model was not added to summary.\n")),
-            class(summ))
+    warning(sprintf(paste("Only one component detected in %s object,",
+                        "marginal model was not added to summary.\n"),
+                    class(summ)))
   }
 
   summ@theoretical <- theor.df
