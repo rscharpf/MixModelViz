@@ -72,7 +72,12 @@ setMethod("plot_summary", c("MixtureSummary", "GraphicalParameters"),
   # Faceting and legend positioning
   if (nBatches > 1) {
     batch_labels <- batch_counts <- table(getObserved(summ)$batch)
-    batch_labels <- c("marginal", paste("batch", names(batch_labels[-1])))
+    marginal_batch <- names(batch_labels) == "marginal"
+    if(any(marginal_batch)) {
+      batch_labels[marginal_batch] <- "marginal"
+    }
+    batch_labels[!marginal_batch] <- paste("batch", names(batch_labels[!marginal_batch]))
+
     batch_labels <- sprintf("%s (n=%d)", batch_labels, batch_counts)
 
     names(batch_labels) <- names(batch_counts)
