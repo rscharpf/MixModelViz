@@ -155,6 +155,12 @@ setGeneric("color_palette", function(params) standardGeneric("color_palette"))
 setGeneric("init_plot", function(summ) standardGeneric("init_plot"))
 
 
+setGeneric("init_histogram", function(summ, ...) standardGeneric("init_histogram"))
+
+
+setGeneric("init_density", function(summ, ...) standardGeneric("init_density"))
+
+
 setGeneric("init_scales", function(summ, params) standardGeneric("init_scales"))
 
 #' Plotting function for `MixtureSummary` objects
