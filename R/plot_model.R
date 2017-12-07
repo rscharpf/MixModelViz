@@ -18,23 +18,74 @@
 ##
 ##
 
+#' Plotting function for `MixtureSummary` objects
+#'
+#' Plots normal densities from theoretical mixture models over a histogram of observed data.
+#'
+#' @param summ a `MixtureSummary` object
+#' @param fill_aes should be "copynumber" or "component", but can be any value
+#'      that can be evaluated by `aes_(fill=as.name(fill_aes))` where `data=obs.df`
+#' @param palette A vector of colors. To specify separate vectors for fill and
+#    color aesthetics, provide a list named vectors, `fill` and `color`.
+#' @param fixed_aes a list of alpha, linetype, and size values that will be
+#'      passed on to geom_hist and geom_line as fixed aesthetic parameters.
+#'      The named list should contain named vectors "hist" and "line".
+#' @return An object of class `ggplot`
+#' @examples
+#' model.1 <- MultiBatchModel2(
+#'      c(rnorm(60, -.4, .1), rnorm(120, -.05, .1), rnorm(60, .3, .1)),
+#'      batches=sample.int(2, 240, TRUE))
+#' model.1 <- posteriorSimulation()
+#' summ.1 <- summarize(model.1)
+#' plot_model(summ.1)
+#'
+#' data(MultiBatchPooledExample)
+#' summ.2 <- summarize(CopyNumberModel(MultiBatchPooledExample))
+#' plot_model(summ.2)
+#' @export
+#'
+plot_model <- function(summ, fill_aes,
+                       palette=c("1"="#56B4E9", "2"="#E69F00", "3"="#009E73",
+                                 "4"="#F0E442", "5"="#0072B2"),
+                       fixed_aes=list(hist=list(alpha=0.5, linetype=0,  size=0),
+                                      line=list(alpha=1,   linetype=1,  size=1))
+                       ) {
 
-setMethod("init_ggplot", c("MixtureSummary", "list"), function(summ) {
-  ggplot(mapping=aes(color=component, fill=component)) +
-  scale_color_manual(name="Component", values=plot.params$color) +
-    scale_fill_manual(name="Component", values=plot.params$fill)
-})
+  if(is.list(palette)) {
+    stopifnot(all(c("color", "fill") %in% names(palette)))
+  } else {
+    palette <- list(color=palette, fill=palette)
+  }
+  if(missing(fill_aes)) {
+    if(inherits(summ, "CopyNumberMixtureSummary")) {
+      fill_aes <- "copynumber"
+    } else {
+      fill_aes <- "component"
+    }
+  }
 
-setMethod("init_ggplot", c("CopyNumberMixtureSummary", "list"), function(summ) {
-  ggplot(mapping=aes(color=copynumber, fill=copynumber)) +
-  scale_color_manual(name="Copy Number", values=plot.params$color) +
-    scale_fill_manual(name="Copy Number", values=plot.params$fill) +
-    guides(color=guide_legend(override.aes=list(fill=NA)))
-})
+  ggp <- ggplot(mapping=aes_(color=as.name(fill_aes), fill=as.name(fill_aes))) +
+    geom_histogram(data=getObserved(summ), aes(x.val, ..count..), alpha=fixed_aes$hist$alpha,
+                   linetype=fixed_aes$hist$linetype, size=fixed_aes$hist$size,
+                   bins=nBins(summ), position=position_stack()) + #reverse=TRUE)) +
+    geom_line(data=getTheoretical(summ), aes(x,y, group=component),
+              alpha=fixed_aes$line$alpha, linetype=fixed_aes$line$linetype,
+              size=fixed_aes$line$size) +
+    scale_color_manual(name="Component", values=palette$color) +
+    scale_y_sqrt()
 
-add_batch_facetting <- function(summ) {
-  result <- list()
+  if(fill_aes=="component") {
+    ggp <- ggp + scale_fill_manual(name="Component", values=palette$fill)
+  } else {
+    fill_name <- fill_aes
+    if (fill_aes=="copynumber") fill_name <- "Copy Number"
+    ggp <- ggp + scale_fill_manual(name=fill_name, values=palette$fill) +
+      guides(color=guide_legend(override.aes=list(fill=NA)))
+  }
+
+
   nBatches <- length(levels(getTheoretical(summ)$batch))
+  # Faceting and legend positioning
   if (nBatches > 1) {
     batch_labels <- paste("batch", seq(nBatches))
     # if("batch.var" %in% names(obs.df)) {
@@ -45,60 +96,18 @@ add_batch_facetting <- function(summ) {
     names(batch_labels) <- seq(nBatches)
     batch_labels["marginal"] = "marginal"
 
-    result <- facet_wrap("batch", scales="free_y",
+    ggp <- ggp + facet_wrap("batch", scales="free_y",
                             ncol=round(sqrt(nBatches + 1)),
                             labeller=labeller(batch=batch_labels))
 
 
     n_facets <- nBatches + 1
     if((n_facets / round(sqrt(n_facets))) %% 1 != 0) {
-      result <- result + theme(legend.position = c(1, 0),
+      ggp <- ggp + theme(legend.position = c(1, 0),
                          legend.justification = c(1, 0),
                          legend.box="horizontal")
     }
   }
-  result
+
+  ggp
 }
-
-#' Plotting function for `MixtureSummary` objects
-#'
-#' Plots normal densities from theoretical mixture models over a histogram of observed data.
-#'
-#' @param summ a `MixtureSummary` object
-#' @param plot.params Currently a list of fixed aesthetics that can be passed to
-#'      ggplot geom_ functions. Named list elements correspond to geom_* and
-#'      scale_*_manual functions. Elements of geom_* elements are used as
-#'      fixed aestheics. Elements of scale_*_manual elements are passed to the
-#'      named argument `values`.
-#' @return An object of class `ggplot`
-#' @examples
-#' summ <- summarize(sbm.obj)
-#' plot_summary(summ, fill_aes="component")
-#' summ.cn <- summarize(mbcn.obj)
-#' plot_summary(summ, fill_aes="copynumber")
-#' @export
-#'
-setMethod("plot_summary", c("MixtureSummary", "list"), function(summ, plot.params=list(
-    color=c("1"="#56B4E9", "2"="#E69F00", "3"="#009E73", "4"="#F0E442", "5"="#0072B2"),
-    fill=c("1"="#56B4E9", "2"="#E69F00", "3"="#009E73", "4"="#F0E442", "5"="#0072B2"),
-    hist=list(alpha=0.5, linetype=0, size=0),
-    line=list(alpha=1,   linetype=1,  size=1))) {
-
-  init_ggplot(summ, plot.params) +
-    geom_histogram(data=getObserved(summ),
-                   aes(x.val, ..count..),
-                   alpha=plot.params$hist$alpha,
-                   linetype=plot.params$hist$linetype,
-                   size=plot.params$hist$size,
-                   bins=nBins(summ),
-                   position=position_stack()) +
-    geom_line(data=getTheoretical(summ),
-              aes(x,y, group=component),
-              alpha=plot.params$line$alpha,
-              linetype=plot.params$line$linetype,
-              size=plot.params$line$size) +
-    scale_y_sqrt() +
-    add_batch_facetting(summ)
-})
-
-
