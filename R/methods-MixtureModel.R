@@ -54,20 +54,18 @@ setMethod("summarizeObserved", "MixtureModel", function(model) {
 })
 
 #' @rdname summarizeObserved-method
-#' @aliases summarizeObserved,SingleBatchCopyNumber-method
-setMethod("summarizeObserved", "SingleBatchCopyNumber", function(model) {
+#' @aliases summarizeObserved,SingleBatchModel-method
+setMethod("summarizeObserved", "SingleBatchModel", function(model) {
   result <- callNextMethod(model)
-  result$copynumber <- factor(copyNumber(model), levels=seq(max(mapping(model))), ordered=TRUE)
+  result$batch <- factor(1, ordered=TRUE)
   result
 })
 
 #' @rdname summarizeObserved-method
-#' @aliases summarizeObserved,MultiBatchModel-method
-setMethod("summarizeObserved", "MultiBatchModel", function(model) {
+#' @aliases summarizeObserved,SingleBatchCopyNumber-method
+setMethod("summarizeObserved", "SingleBatchCopyNumber", function(model) {
   result <- callNextMethod(model)
-  nBatch <- length(levels(result$batch))
-  result <- rbind(result, transform(result, batch="marginal"))
-  result$batch <- factor(result$batch, levels=c("marginal", seq(nBatch)), ordered=TRUE)
+  result$copynumber <- factor(copyNumber(model), levels=seq(max(mapping(model))), ordered=TRUE)
   result
 })
 
@@ -102,27 +100,29 @@ setMethod("summarizeTheoretical", c("MixtureModel", "data.frame"), function(mode
   crosstab.mat <- as.matrix(table(factor(obs.df$batch, seq(nrow(theta.mat))),
                                   obs.df$component))
 
-  pred.df <- Reduce(rbind, lapply(seq(nrow(theta.mat)), function(b) {
+  theor.df <- Reduce(rbind, lapply(seq(nrow(theta.mat)), function(b) {
     Reduce(rbind, lapply(seq(ncol(theta.mat)), function(k) {
-      transform(
-        data.frame(
-          theta=theta.mat[b,k],
-          sigma=sigma.mat[b,k],
-          batch=factor(b, seq(nrow(theta.mat)), ordered=TRUE),
-          component=factor(k, seq(ncol(theta.mat)), ordered=TRUE),
-          x=seq(x.range[1], x.range[2], length=1000)),
-        y=dnorm(x, theta, sigma)*binSize*crosstab.mat[b,k]
-      )
+      x <- seq(x.range[1], x.range[2], length=1000)
+      data.frame(
+        theta=theta.mat[b,k],
+        sigma=sigma.mat[b,k],
+        batch=factor(b, seq(nrow(theta.mat)), ordered=TRUE),
+        component=factor(k, seq(ncol(theta.mat)), ordered=TRUE),
+        x=x,
+        y=dnorm(x, theta.mat[b,k], sigma.mat[b,k])*binSize*crosstab.mat[b,k])
     }))
   }))
-  list(theoretical=pred.df, nBins=as.integer(nBins))
+
+  list(theoretical=theor.df, nBins=as.integer(nBins))
 })
+
 
 #' @rdname summarizeTheoretical-method
 #' @aliases summarizeTheoretical,SingleBatchCopyNumber-method
 setMethod("summarizeTheoretical", c("SingleBatchCopyNumber", "data.frame"), function(model, obs.df) {
   result <- callNextMethod(model, obs.df)
-  result$theoretical$copynumber <- factor(mapping(model), seq(max(mapping(model))))[result$theoretical$component]
+  copynumber_mapping <- factor(mapping(model), seq(max(mapping(model))), ordered=TRUE)
+  result$theoretical$copynumber <- copynumber_mapping[result$theoretical$component]
   result
 })
 
@@ -130,7 +130,8 @@ setMethod("summarizeTheoretical", c("SingleBatchCopyNumber", "data.frame"), func
 #' @aliases summarizeTheoretical,MultiBatchCopyNumber-method
 setMethod("summarizeTheoretical", c("MultiBatchCopyNumber", "data.frame"), function(model, obs.df) {
   result <- callNextMethod(model, obs.df)
-  result$theoretical$copynumber <- factor(mapping(model), seq(max(mapping(model))))[result$theoretical$component]
+  copynumber_mapping <- factor(mapping(model), seq(max(mapping(model))), ordered=TRUE)
+  result$theoretical$copynumber <- copynumber_mapping[result$theoretical$component]
   result
 })
 
@@ -138,58 +139,40 @@ setMethod("summarizeTheoretical", c("MultiBatchCopyNumber", "data.frame"), funct
 #' @aliases summarizeTheoretical,MultiBatchCopyNumberPooled-method
 setMethod("summarizeTheoretical", c("MultiBatchCopyNumberPooled", "data.frame"), function(model, obs.df) {
   result <- callNextMethod(model, obs.df)
-  result$theoretical$copynumber <- factor(mapping(model), seq(max(mapping(model))))[result$theoretical$component]
+  copynumber_mapping <- factor(mapping(model), seq(max(mapping(model))), ordered=TRUE)
+  result$theoretical$copynumber <- copynumber_mapping[result$theoretical$component]
   result
 })
 
 
 #' @rdname summarize-method
 #' @aliases summarize,MixtureModel-method
-setMethod("summarize", c("MixtureModel", "tbl_df"), function(model, ds.tbl) {
+setMethod("summarize", c("MixtureModel"), function(model) {
   obs.df <- summarizeObserved(model)
-
-  obs.df <- obs.df[match(ds.tib$tile, tileSummaries(ds.tib)$tile), ]
-  if (max(cn.df$batch) > 1)  # Cannot be tested with SingleBatch/Pooled models
-    stopifnot(ds.tib$batch == obs.df$batch)
-  obs.df$x.val <- ds.tib$logratio
-  obs.df$batch.var <- ds.tib$batch.var
-
-  result <- summarizeTheoretical(model, subset(obs.df, batch != "marginal"))
+  result <- summarizeTheoretical(model, obs.df)
   new("MixtureSummary",
       observed=obs.df,
-      theoretical=results$theoretical,
-      nBins=results$nBins)
-})
-
-#' @rdname summarize-method
-#' @aliases summarize,MixtureModel-method
-setMethod("summarize", c("MixtureModel", "missing"), function(model, ds.tbl) {
-  obs.df <- summarizeObserved(model)
-  results <- summarizeTheoretical(model, subset(obs.df, batch != "marginal"))
-  new("MixtureSummary",
-      observed=obs.df,
-      theoretical=results$theoretical,
-      nBins=results$nBins)
+      theoretical=result$theoretical,
+      nBins=result$nBins)
 })
 
 #' @rdname summarize-method
 #' @aliases summarize,SingleBatchCopyNumber-method
-setMethod("summarize", c("SingleBatchCopyNumber", "tbl_df"), function(model, ds.tbl) {
-  result <- callNextMethod(model, ds.tbl)
+setMethod("summarize", c("SingleBatchCopyNumber"), function(model) {
+  result <- callNextMethod(model)
   as(result, "CopyNumberMixtureSummary")
 })
 
 #' @rdname summarize-method
 #' @aliases summarize,MultiBatchCopyNumber-method
-setMethod("summarize", c("MultiBatchCopyNumber", "tbl_df"), function(model, ds.tbl) {
-  result <- callNextMethod(model, ds.tbl)
+setMethod("summarize", c("MultiBatchCopyNumber"), function(model) {
+  result <- callNextMethod(model)
   as(result, "CopyNumberMixtureSummary")
 })
 
 #' @rdname summarize-method
 #' @aliases summarize,MultiBatchCopyNumberPooled-method
-setMethod("summarize", c("MultiBatchCopyNumberPooled", "tbl_df"), function(model, ds.tbl) {
-  result <- callNextMethod(model, ds.tbl)
+setMethod("summarize", c("MultiBatchCopyNumberPooled"), function(model) {
+  result <- callNextMethod(model)
   as(result, "CopyNumberMixtureSummary")
 })
-

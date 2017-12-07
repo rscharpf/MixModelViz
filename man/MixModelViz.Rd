@@ -4,7 +4,7 @@
 \name{MixModelViz}
 \alias{MixModelViz}
 \alias{MixModelViz-package}
-\title{update title}
+\title{Plot mixture models with applications to copy number / batch effects}
 \description{
-update title
+Plot mixture models with applications to copy number / batch effects
 }

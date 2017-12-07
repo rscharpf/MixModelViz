@@ -3,7 +3,8 @@
 #' @docType package
 #' @name MixModelViz
 #' @import methods
-#' @import CNPBayes
 #' @import ggplot2
-#' @import tibble
+#' @import CNPBayes
+#' @importFrom stats aggregate dnorm setNames
+#' @importFrom utils head modifyList
 NULL

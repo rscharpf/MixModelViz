@@ -3,22 +3,28 @@
 \docType{methods}
 \name{summarize}
 \alias{summarize}
-\alias{summarize,TempModel-method}
 \alias{summarize,MixtureModel-method}
-\title{Summarize a MixtureModel into a set of data.frames that can be plotted
- (observed and predicted)}
+\alias{summarize,SingleBatchCopyNumber-method}
+\alias{summarize,MultiBatchCopyNumber-method}
+\alias{summarize,MultiBatchCopyNumberPooled-method}
+\title{Summarize a MixtureModel into a set of data.frames that can be plotted.}
 \usage{
 summarize(model)
 
-\S4method{summarize}{TempModel}(model)
+\S4method{summarize}{MixtureModel}(model)
+
+\S4method{summarize}{SingleBatchCopyNumber}(model)
+
+\S4method{summarize}{MultiBatchCopyNumber}(model)
+
+\S4method{summarize}{MultiBatchCopyNumberPooled}(model)
 }
 \arguments{
 \item{model}{a MixtureModel-derived object}
 }
 \value{
-A MixtureSummary object of two data.frames (observed and predicted) that can be plotted
+A MixtureSummary object.
 }
 \description{
-Summarize a MixtureModel into a set of data.frames that can be plotted
- (observed and predicted)
+This function returns a list of two data.frames (observed and predicted) that can be plotted over each other. The observed values can be plotted as a histogram when split by `nBins(MixtureSumamry.obj)`. The theoretical distribution has been scaled to be plotted over the histogram when plotted as described.
 }
