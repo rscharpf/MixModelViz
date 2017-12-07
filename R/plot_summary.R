@@ -14,7 +14,7 @@ setMethod("init_histogram", c("MixtureSummary"), function(summ, ...) {
           modifyList(
             list(
               data=getObserved(summ),
-              mapping=aes_string("x.val", "..count..", color="component", fill="component"),
+              mapping=aes_string("x.val", "..count.."),
               bins=nBins(summ),
               position=position_stack(),
               linetype=0),
@@ -26,7 +26,7 @@ setMethod("init_histogram", c("CopyNumberMixtureSummary"), function(summ, ...) {
           modifyList(
             list(
               data=getObserved(summ),
-              mapping=aes_string("x.val", "..count..", color="copynumber", fill="copynumber"),
+              mapping=aes_string("x.val", "..count.."),
               bins=nBins(summ),
               position=position_stack(),
               linetype=0),
@@ -38,7 +38,7 @@ setMethod("init_density", c("MixtureSummary"), function(summ, ...) {
           modifyList(
             list(
               data=getTheoretical(summ),
-              mapping=aes_string("x", "y", group="component", color="component", fill="component"),
+              mapping=aes_string("x", "y", group="component"),
               size=1),
             list(...)))
 })
@@ -48,7 +48,7 @@ setMethod("init_density", c("CopyNumberMixtureSummary"), function(summ, ...) {
           modifyList(
             list(
               data=getTheoretical(summ),
-              mapping=aes_string("x", "y", group="component", color="copynumber", fill="copynumber"),
+              mapping=aes_string("x", "y", group="component"),
               size=1),
             list(...)))
 })
